@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
 
 import { AuthControls } from "@/components/auth-controls";
 import { Icons } from "@/components/icons";
@@ -9,7 +8,6 @@ import { auth } from "@/lib/auth";
 
 const HomePage = async () => {
   const session = await auth();
-  const t = await getTranslations("home");
 
   return (
     <>
@@ -31,7 +29,7 @@ const HomePage = async () => {
           starter template
         </h1>
         <p className="text-muted-foreground max-w-2xl md:text-lg">
-          {t("subtitle")}
+          A Next.js starter template, packed with features like TypeScript, Tailwind CSS, Next-auth, Eslint, Stripe, testing tools and more. Jumpstart your project with efficiency and style.
         </p>
         <div className="mt-2 flex gap-4">
           {session ? (
@@ -42,7 +40,7 @@ const HomePage = async () => {
               target="_blank"
               className={buttonVariants({ size: "lg" })}
             >
-              {t("getStartedButton")}
+              Get started
             </Link>
           )}
           <Link
@@ -68,3 +66,4 @@ const HomePage = async () => {
 };
 
 export default HomePage;
+

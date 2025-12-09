@@ -20,12 +20,9 @@
 - 🔒 Next-auth - Easy authentication library for Next.js (GitHub provider)
 - 🛡️ Drizzle - ORM for node.js
 - 🔍 Zod - Schema validation library
-- 🧪 Jest & React Testing Library - Configured for unit testing
-- 🎭 Playwright - Configured for e2e testing
 - 📈 Absolute Import & Path Alias - Import components using `@/` prefix
 - 💅 Prettier - Code formatter
 - 🧹 Eslint - Code linting tool
-- 🐶 Husky & Lint Staged - Run scripts on your staged files before they are committed
 - 🔹 Icons - From Lucide
 - 🌑 Dark mode - With next-themes
 - 📝 Commitlint - Lint your git commits
@@ -34,7 +31,6 @@
 - 🗺️ Sitemap & robots.txt
 - 💯 Perfect Lighthouse score
 - 💾 Neon database
-- 🌐 I18n with next-intl
 
 ## 🚀 Deployment
 Easily deploy your Next.js app with <a href="https://vercel.com/">Vercel</a> by clicking the button below:
@@ -68,14 +64,7 @@ npm install
 ### 3. Set up environment variables
 Create `.env` file and set env variables from `.env.example` file.
 
-### 4. Prepare husky
-It is required if you want husky to work
-
-```bash
-npm run prepare
-```
-
-### 5. Run the dev server
+### 4. Run the dev server
 
 You can start the server using this command:
 
@@ -90,11 +79,8 @@ and open http://localhost:3000/ to see this app.
 ```bash
 .
 ├── .github                         # GitHub folder
-├── .husky                          # Husky configuration
-├── prisma                          # Prisma schema and migrations
 ├── public                          # Public assets folder
 └── src
-    ├── __tests__                   # Unit and e2e tests
     ├── actions                     # Server actions
     ├── app                         # Next JS App (App Router)
     ├── components                  # React components
@@ -114,12 +100,6 @@ The following scripts are available in the `package.json`:
 - `format:check`: Checks the code for proper formatting
 - `format:write`: Fix formatting issues
 - `typecheck`: Type-check TypeScript without emitting files
-- `test`: Run unit tests
-- `test:watch`: Run unit tests in watch mode
-- `e2e`: Run end-to-end tests
-- `e2e:ui`: Run end-to-end tests with UI
-- `postbuild`: Generate sitemap
-- `prepare`: Install Husky for managing Git hooks
 
 ## 🤝 Contribution
 To contribute, please follow these steps:
