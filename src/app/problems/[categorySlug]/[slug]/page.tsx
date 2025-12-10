@@ -1,6 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
 import { notFound } from "next/navigation";
 
+import { BackToProblemsButton } from "@/components/back-to-problems-button";
 import { CommentForm } from "@/components/comment-form";
 import { DeveloperStatusForm } from "@/components/developer-status-form";
 import { FollowButton } from "@/components/follow-button";
@@ -45,6 +46,10 @@ export default async function ProblemDetailPage({
   return (
     <div className="space-y-6">
       <ProblemCreatedToast />
+
+      {/* Back Button */}
+      <BackToProblemsButton />
+
       {/* Header */}
       <div className="space-y-4">
         <div className="flex flex-wrap items-start gap-3">

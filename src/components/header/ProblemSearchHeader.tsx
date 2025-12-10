@@ -80,8 +80,40 @@ export function ProblemSearchHeader({
     });
   };
 
-  const handleCategoryClick = (category: string) => {
-    updateFilter("category", category);
+  const handleCategoryClick = (categorySlug: string) => {
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams);
+
+      if (categorySlug === "all") {
+        // Clear all category selections
+        params.delete("category");
+      } else {
+        // Get current selected categories
+        const currentCategories = params.get("category");
+        const selectedCategories = currentCategories
+          ? currentCategories.split(",")
+          : [];
+
+        // Toggle the category
+        const categoryIndex = selectedCategories.indexOf(categorySlug);
+        if (categoryIndex > -1) {
+          // Remove if already selected
+          selectedCategories.splice(categoryIndex, 1);
+        } else {
+          // Add if not selected
+          selectedCategories.push(categorySlug);
+        }
+
+        // Update URL params
+        if (selectedCategories.length > 0) {
+          params.set("category", selectedCategories.join(","));
+        } else {
+          params.delete("category");
+        }
+      }
+
+      router.push(`/?${params.toString()}`);
+    });
   };
 
   const handleSortChange = (value: string) => {
@@ -89,7 +121,11 @@ export function ProblemSearchHeader({
   };
 
   const currentSort = searchParams.get("sort") || "votes";
-  const currentCategory = selectedCategory || "all";
+
+  // Parse selected categories from URL
+  const categoryParam = searchParams.get("category");
+  const selectedCategories = categoryParam ? categoryParam.split(",") : [];
+  const hasSelectedCategories = selectedCategories.length > 0;
 
   return (
     <div
@@ -167,13 +203,13 @@ export function ProblemSearchHeader({
         >
           {/* All Categories Button */}
           <Button
-            variant={currentCategory === "all" ? "default" : "outline"}
+            variant={!hasSelectedCategories ? "default" : "outline"}
             size={isScrolled ? "sm" : "default"}
             onClick={() => handleCategoryClick("all")}
             disabled={isPending}
             className={cn(
               "flex-shrink-0 snap-start rounded-full transition-all duration-200",
-              currentCategory !== "all" && "hover:scale-105",
+              hasSelectedCategories && "hover:scale-105",
             )}
           >
             All
@@ -181,7 +217,7 @@ export function ProblemSearchHeader({
 
           {/* Category Buttons */}
           {categories.map((category) => {
-            const isActive = currentCategory === category.slug;
+            const isActive = selectedCategories.includes(category.slug);
 
             return (
               <Button

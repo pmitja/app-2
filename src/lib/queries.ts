@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 
 import {
     categories,
@@ -63,7 +63,11 @@ export async function getProblems(
   }
 
   if (category && category !== "all") {
-    conditions.push(eq(categories.slug, category));
+    // Handle multiple categories separated by commas (OR logic)
+    const categoryArray = category.split(",").map(c => c.trim()).filter(Boolean);
+    if (categoryArray.length > 0) {
+      conditions.push(inArray(categories.slug, categoryArray));
+    }
   }
 
   // Create a subquery to count votes for each problem
