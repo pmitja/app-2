@@ -1,0 +1,308 @@
+# MVP Tasks
+
+## Phase 0 — Baseline alignment (quick wins)
+
+### 0.1 Establish UI primitives (shadcn)
+
+**Goal:** consistent UI fast.
+
+**Tasks:**
+
+- Add/confirm shadcn setup.
+- Install core components you’ll use everywhere:
+  - Button, Card, Badge, Input, Textarea, Select, Tabs, Separator, DropdownMenu, Skeleton, Avatar, Toast.
+- Create a small ui/ wrapper folder for custom variants.
+
+**Deliverable:**
+
+- A minimal style guide page /dev/ui (internal) to verify components.
+
+## Phase 1 — Data layer (Drizzle)
+
+### 1.1 Define schema in Drizzle
+
+**Goal:** match your product spec but in Drizzle.
+
+**Tables:**
+
+- users (already from NextAuth — extend if needed)
+- problems
+- problem_votes
+- problem_follows
+- problem_comments
+- developer_status
+- Optional: categories (or keep category as string on problems for MVP)
+
+**Key constraints:**
+
+- Unique vote per user per problem
+- Unique follow per user per problem
+- Unique developer status per dev per problem
+
+**Deliverable:**
+
+- Drizzle schema + migrations pushed to Neon.
+
+### 1.2 Seed script
+
+**Goal:** make UI development easy.
+
+**Tasks:**
+
+- Add a seed script with:
+  - 10–20 sample problems
+  - categories
+  - comments in both types
+  - dev statuses
+  - votes
+
+**Deliverable:**
+
+- pnpm db:seed
+
+## Phase 2 — Global layout with ads + search
+
+### 2.1 App shell layout
+
+**Goal:** 3-column layout used everywhere.
+
+**Tasks:**
+
+- Create AppShell layout component:
+  - Left Ads column
+  - Center content
+  - Right Ads column
+- Responsive rules:
+  - Desktop: 3 columns
+  - Tablet: collapse to 1 ad column or hide
+  - Mobile: hide sidebars or move ads below
+- shadcn usage:
+  - Use Card for ad blocks.
+  - Use Button for mock CTA.
+
+**Deliverable:**
+
+- All pages render inside this shell.
+
+### 2.2 Ads component (MVP placeholders)
+
+**Goal:** static ads now, dynamic later.
+
+**Tasks:**
+
+- Create AdRail component.
+- Use a hardcoded array of 6–10 ad items.
+- Add small “Sponsored” label.
+
+**Deliverable:**
+
+- Same ad rails on all pages.
+
+### 2.3 Global header + search input
+
+**Goal:** search by problem title only.
+
+**Tasks:**
+
+- Create HeaderBar in center column:
+  - App name
+  - “Submit problem” button
+  - Search input
+- Search updates URL query ?q=....
+- shadcn usage:
+  - Input, Button.
+
+**Deliverable:**
+
+- Search works on home list.
+
+## Phase 3 — Problems list (Home)
+
+### 3.1 List query
+
+**Goal:** server-side fetch with filters.
+
+**Tasks:**
+
+- Create a data function:
+  - supports q, sort, category
+  - default sort: most upvoted
+
+**Deliverable:**
+
+- getProblems({ q, sort, category })
+
+### 3.2 Home UI
+
+**Goal:** ProductHunt-ish feed + Airbnb cleanliness.
+
+**Tasks:**
+
+- Build problem cards:
+  - title
+  - category badge
+  - short description
+  - upvote count
+  - pain level badge
+  - frequency badge
+- Add filter bar:
+  - sort dropdown
+  - category dropdown
+- shadcn usage:
+  - Card, Badge, Select, DropdownMenu.
+
+**Deliverable:**
+
+- / feels like the core app already.
+
+## Phase 4 — Problem creation
+
+### 4.1 Create problem form page
+
+**Tasks:**
+
+- /problems/new
+- Fields:
+  - title
+  - description
+  - category
+  - pain level 1–5
+  - frequency
+  - wouldPay bool
+- shadcn usage:
+  - Input, Textarea, Select, Button, Card.
+
+### 4.2 Server action / route handler
+
+**Tasks:**
+
+- Validate input
+- Create problem
+- Redirect to detail page
+
+**Deliverable:**
+
+- Working end-to-end creation.
+
+## Phase 5 — Problem detail
+
+### 5.1 Detail query
+
+**Tasks:**
+
+- Fetch:
+  - problem
+  - vote count
+  - whether current user voted
+  - follow status
+  - comments grouped by type
+  - developer statuses
+
+**Deliverable:**
+
+- Single server function.
+
+### 5.2 Detail UI layout
+
+**Tasks:**
+
+- Build sections in center column:
+  - Title + category
+  - Meta
+  - Upvote + Follow controls
+  - Description + badges
+  - Developer status panel
+  - Comments area with two blocks
+- shadcn usage:
+  - Card, Badge, Tabs (optional), Separator, Button.
+
+## Phase 6 — Interaction features
+
+### 6.1 Upvote toggle
+
+**Tasks:**
+
+- Server action:
+  - insert/delete vote with unique constraint
+- Optimistic UI optional.
+- shadcn usage:
+  - Button, Toast.
+
+### 6.2 Follow toggle
+
+**Tasks:**
+
+- Same pattern as votes.
+
+### 6.3 Comments (two types)
+
+**Tasks:**
+
+- Create comment form component that accepts a type
+- Render:
+  - “Problem discussion”
+  - “Solutions & approaches”
+- shadcn usage:
+  - Textarea, Button, Card.
+
+### 6.4 Developer status
+
+**Tasks:**
+
+- Allow only users with role DEVELOPER (from NextAuth session)
+- Two buttons:
+  - exploring
+  - building
+- Optional solutionUrl input
+- List all developers’ statuses
+- shadcn usage:
+  - Button, Input, Badge, Card.
+
+## Phase 7 — Auth + roles polish
+
+### 7.1 Ensure role exists in session
+
+**Tasks:**
+
+- Extend NextAuth callbacks to include:
+  - role
+- Add a simple “Become a developer” toggle in account settings (optional MVP+).
+
+## Phase 8 — Email events (Resend)
+
+You already have Resend wired, so keep this minimal.
+
+### 8.1 Follow notifications (MVP)
+
+**Trigger:**
+
+- When a developer adds/updates solutionUrl
+
+**Tasks:**
+
+- Query followers
+- Send a simple email:
+  - problem title
+  - link to detail page
+  - solution link
+
+**Deliverable:**
+
+- First “magic” moment.
+
+## Phase 9 — Stripe (optional MVP+)
+
+Since Stripe is ready, you can add a tiny monetization hook without expanding scope.
+
+### 9.1 Sponsor a problem (very light)
+
+**Tasks:**
+
+- Add a “Sponsor this problem” button on detail
+- Simple one-time payment
+- Store sponsorships table:
+  - userId
+  - problemId
+  - amount
+  - stripePaymentIntentId
+- Show total sponsored amount on the problem page

@@ -1,0 +1,59 @@
+import { HeaderBar } from "@/components/header-bar";
+import { SponsorBar } from "@/components/sponsors/sponsor-bar";
+import { SponsorCarousel } from "@/components/sponsors/sponsor-carousel";
+import { SponsorRail } from "@/components/sponsors/sponsor-rail";
+import { SponsorsProvider } from "@/components/sponsors/sponsors-provider";
+import { auth } from "@/lib/auth";
+
+interface AppShellProps {
+  children: React.ReactNode;
+}
+
+export async function AppShell({ children }: AppShellProps) {
+  const session = await auth();
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <HeaderBar session={session} />
+
+      <SponsorsProvider>
+        {/* Top carousel - mobile/tablet only, fixed at top */}
+        <div className="fixed top-0 right-0 left-0 z-40 lg:hidden">
+          <SponsorCarousel placement="MOBILE_CAROUSEL_TOP" direction="ltr" />
+        </div>
+
+        <div className="flex flex-1 gap-6 py-6 pt-24 pb-24 lg:py-6">
+          {/* Left Sponsor Rail - Desktop only, outside container */}
+          <aside className="hidden lg:block lg:flex-1 lg:pl-4">
+            <div className="sticky top-20">
+              <SponsorRail placement="RAIL_LEFT" />
+            </div>
+          </aside>
+
+          {/* Main Content - centered with container */}
+          <main className="container">
+            {/* Optional top sponsor bar (desktop + mobile, behind feature flag) */}
+            <SponsorBar placement="TOP_BAR" />
+
+            {children}
+
+            {/* Optional bottom sponsor bar (desktop + mobile, behind feature flag) */}
+            <SponsorBar placement="BOTTOM_BAR" />
+          </main>
+
+          {/* Right Sponsor Rail - Desktop only, outside container */}
+          <aside className="hidden lg:block lg:flex-1 lg:pr-4">
+            <div className="sticky top-20">
+              <SponsorRail placement="RAIL_RIGHT" />
+            </div>
+          </aside>
+        </div>
+
+        {/* Bottom carousel - mobile/tablet only, fixed at bottom */}
+        <div className="fixed right-0 bottom-0 left-0 z-40 lg:hidden">
+          <SponsorCarousel placement="MOBILE_CAROUSEL_BOTTOM" direction="rtl" />
+        </div>
+      </SponsorsProvider>
+    </div>
+  );
+}

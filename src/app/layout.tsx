@@ -2,8 +2,10 @@ import "@/styles/globals.css";
 
 import type { Metadata } from "next";
 
+import { AppShell } from "@/components/app-shell";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { Toaster } from "@/components/ui/sonner";
 import { fonts } from "@/lib/fonts";
 import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
@@ -41,16 +43,13 @@ export const metadata: Metadata = {
   },
 };
 
-const RootLayout = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn("min-h-screen font-sans", fonts)}>
         <ThemeProvider attribute="class">
-          {children}
+          <AppShell>{children}</AppShell>
+          <Toaster />
           <ThemeSwitcher className="absolute right-5 bottom-5 z-10" />
         </ThemeProvider>
       </body>
@@ -59,4 +58,3 @@ const RootLayout = ({
 };
 
 export default RootLayout;
-

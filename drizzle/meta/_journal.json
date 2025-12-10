@@ -15,6 +15,27 @@
       "when": 1749407322022,
       "tag": "0001_small_sabra",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1765284757376,
+      "tag": "0002_parallel_chimera",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1765288730509,
+      "tag": "0003_secret_bloodscream",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1765315312135,
+      "tag": "0004_tidy_argent",
+      "breakpoints": true
     }
   ]
 }
