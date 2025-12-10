@@ -24,7 +24,7 @@ export async function AppShell({ children }: AppShellProps) {
 
         <div className="flex flex-1 gap-6 py-6 pt-24 pb-24 lg:py-6">
           {/* Left Sponsor Rail - Desktop only, outside container */}
-          <aside className="hidden lg:block lg:flex-1 lg:pl-4">
+          <aside className="hidden lg:block lg:min-w-[200px] lg:flex-1 lg:pl-4">
             <div className="sticky top-20">
               <SponsorRail placement="RAIL_LEFT" />
             </div>
@@ -42,7 +42,7 @@ export async function AppShell({ children }: AppShellProps) {
           </main>
 
           {/* Right Sponsor Rail - Desktop only, outside container */}
-          <aside className="hidden lg:block lg:flex-1 lg:pr-4">
+          <aside className="hidden lg:block lg:min-w-[200px] lg:flex-1 lg:pr-4">
             <div className="sticky top-20">
               <SponsorRail placement="RAIL_RIGHT" />
             </div>

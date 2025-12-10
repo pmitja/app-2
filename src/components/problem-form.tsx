@@ -26,8 +26,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  createProblemSchema,
   type CreateProblemFormData,
+  createProblemSchema,
 } from "@/lib/validation";
 
 const CATEGORIES = [

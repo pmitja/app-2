@@ -1,9 +1,9 @@
 "use client";
 
-import { Session } from "next-auth";
-import { signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { Session } from "next-auth";
+import { signOut } from "next-auth/react";
 import { useState } from "react";
 
 import { AuthModal } from "@/components/auth-modal";

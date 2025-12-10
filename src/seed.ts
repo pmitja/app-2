@@ -1,5 +1,7 @@
 import "dotenv/config";
+
 import { eq } from "drizzle-orm";
+
 import { db, developerStatuses, problemComments, problems, problemVotes, users } from "./lib/schema";
 
 const CATEGORIES = ["Performance", "UI/UX", "Database", "Security", "DevOps", "Testing", "Analytics"];

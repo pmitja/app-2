@@ -2,6 +2,7 @@
 
 import type { SponsorPlacement } from "@/lib/sponsors";
 import { getSponsorsByPlacement } from "@/lib/sponsors";
+import { cn } from "@/lib/utils";
 
 import { SponsorCarouselCard } from "./sponsor-carousel-card";
 import { useSponsors } from "./sponsors-provider";
@@ -80,7 +81,14 @@ export function SponsorCarousel({
   ];
 
   return (
-    <div className="from-muted/20 relative w-full overflow-hidden bg-gradient-to-b to-transparent py-4">
+    <div
+      className={cn(
+        "from-muted/20 relative w-full overflow-hidden bg-gradient-to-b to-transparent py-4 dark:bg-black",
+        placement === "MOBILE_CAROUSEL_TOP"
+          ? "border-b-2 border-[#333]"
+          : "border-t-2 border-[#333]",
+      )}
+    >
       {/* Gradient overlays for smooth edges */}
       <div className="from-background pointer-events-none absolute top-0 left-0 z-10 h-full w-16 bg-gradient-to-r to-transparent" />
       <div className="from-background pointer-events-none absolute top-0 right-0 z-10 h-full w-16 bg-gradient-to-l to-transparent" />
