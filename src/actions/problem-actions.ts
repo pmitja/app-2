@@ -104,12 +104,20 @@ export async function createProblem(data: unknown) {
     
     // Redirect to the new problem detail page with slug-based URL
     if (category) {
-      redirect(`/problems/${category.slug}/${newProblem.slug}`);
+      redirect(`/problems/${category.slug}/${newProblem.slug}?created=true`);
     } else {
       // Fallback to old URL structure if category not found
-      redirect(`/problems/${newProblem.id}`);
+      redirect(`/problems/${newProblem.id}?created=true`);
     }
   } catch (error) {
+    // Re-throw redirect errors so Next.js can handle them
+    if (error && typeof error === 'object' && 'digest' in error) {
+      const digest = (error as { digest?: string }).digest;
+      if (digest?.startsWith('NEXT_REDIRECT')) {
+        throw error;
+      }
+    }
+    
     console.error("Error creating problem:", error);
     if (error instanceof Error) {
       return { error: error.message };

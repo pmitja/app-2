@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { CommentForm } from "@/components/comment-form";
 import { DeveloperStatusForm } from "@/components/developer-status-form";
 import { FollowButton } from "@/components/follow-button";
+import { ProblemCreatedToast } from "@/components/problem-created-toast";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -43,6 +44,7 @@ export default async function ProblemDetailPage({
 
   return (
     <div className="space-y-6">
+      <ProblemCreatedToast />
       {/* Header */}
       <div className="space-y-4">
         <div className="flex flex-wrap items-start gap-3">

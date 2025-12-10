@@ -63,8 +63,18 @@ export function ProblemForm({ categories }: ProblemFormProps) {
       }
       // If successful, createProblem will redirect
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to create problem");
+      // Don't show error for redirects (which are actually successful)
+      const isRedirectError =
+        error &&
+        typeof error === "object" &&
+        "digest" in error &&
+        typeof (error as any).digest === "string" &&
+        (error as any).digest.includes("NEXT_REDIRECT");
+
+      if (!isRedirectError) {
+        console.error(error);
+        toast.error("Failed to create problem");
+      }
     }
   }
 
