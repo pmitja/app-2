@@ -1,35 +1,18 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export const ThemeSwitcher = () => {
   const { theme, setTheme } = useTheme();
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsVisible(window.scrollY > 200);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <Button
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
       size="icon"
-      className={cn(
-        "fixed right-6 bottom-6 z-40 rounded-full shadow-lg transition-all duration-300",
-        isVisible
-          ? "translate-y-0 opacity-100"
-          : "pointer-events-none translate-y-16 opacity-0",
-      )}
+      className="fixed right-6 bottom-6 z-40 rounded-full shadow-lg"
       aria-label="Toggle theme"
     >
       <Icons.sun className="dark:hidden" />

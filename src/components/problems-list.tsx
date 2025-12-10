@@ -26,7 +26,7 @@ export function ProblemsList({ problems }: ProblemsListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col space-y-3">
       {problems.map((problem) => (
         <Link
           key={problem.id}
