@@ -1,7 +1,7 @@
-import { ProblemsFilters } from "@/components/problems-filters";
-import { ProblemsList } from "@/components/problems-list";
-import { Separator } from "@/components/ui/separator";
-import { getProblems } from "@/lib/queries";
+import { ProblemSearchHeader } from "@/components/header/ProblemSearchHeader";
+import { ProblemsListInfinite } from "@/components/problems-list-infinite";
+import { ScrollToTopButton } from "@/components/scroll-to-top-button";
+import { getCategories, getProblems } from "@/lib/queries";
 
 interface HomePageProps {
   searchParams: Promise<{
@@ -13,37 +13,33 @@ interface HomePageProps {
 
 const HomePage = async ({ searchParams }: HomePageProps) => {
   const params = await searchParams;
-  const problems = await getProblems({
-    q: params.q,
-    sort: params.sort || "votes",
-    category: params.category,
-  });
+  const [problems, categories] = await Promise.all([
+    getProblems({
+      q: params.q,
+      sort: params.sort || "votes",
+      category: params.category,
+    }),
+    getCategories(),
+  ]);
 
   return (
-    <div className="space-y-6">
-      {/* Page Title */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Problems</h1>
-        <p className="text-muted-foreground">
-          Discover and upvote the problems that matter most to you
-        </p>
+    <>
+      <div className="space-y-8">
+        {/* Search Header with Categories and Sort */}
+        <ProblemSearchHeader
+          categories={categories}
+          initialQuery={params.q}
+          initialSort={params.sort}
+          selectedCategory={params.category}
+        />
+
+        {/* Problems List with Infinite Scroll */}
+        <ProblemsListInfinite initialProblems={problems} />
       </div>
 
-      <Separator />
-
-      {/* Filters */}
-      <ProblemsFilters />
-
-      {/* Problems List */}
-      <ProblemsList problems={problems} />
-
-      {/* Results count */}
-      {problems.length > 0 && (
-        <div className="text-muted-foreground py-4 text-center text-sm">
-          Showing {problems.length} problem{problems.length !== 1 ? "s" : ""}
-        </div>
-      )}
-    </div>
+      {/* Scroll to Top Button */}
+      <ScrollToTopButton />
+    </>
   );
 };
 

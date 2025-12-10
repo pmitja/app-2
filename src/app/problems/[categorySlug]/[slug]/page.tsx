@@ -10,20 +10,25 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VoteButton } from "@/components/vote-button";
 import { auth } from "@/lib/auth";
-import { getProblemDetail } from "@/lib/queries";
+import { getProblemDetailBySlug } from "@/lib/queries";
 
 interface ProblemDetailPageProps {
   params: Promise<{
-    id: string;
+    categorySlug: string;
+    slug: string;
   }>;
 }
 
 export default async function ProblemDetailPage({
   params,
 }: ProblemDetailPageProps) {
-  const { id } = await params;
+  const { categorySlug, slug } = await params;
   const session = await auth();
-  const problem = await getProblemDetail(id, session?.user?.id);
+  const problem = await getProblemDetailBySlug(
+    categorySlug,
+    slug,
+    session?.user?.id,
+  );
 
   if (!problem) {
     notFound();
@@ -45,7 +50,7 @@ export default async function ProblemDetailPage({
             {problem.title}
           </h1>
           <Badge variant="secondary" className="text-sm">
-            {problem.category}
+            {problem.category.emoji} {problem.category.name}
           </Badge>
         </div>
 

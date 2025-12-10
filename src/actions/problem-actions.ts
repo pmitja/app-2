@@ -9,6 +9,11 @@ import { env } from "@/env.mjs";
 import { auth } from "@/lib/auth";
 import { getSolutionNotificationEmail } from "@/lib/email-templates";
 import {
+    createCategory,
+    searchSimilarCategories,
+} from "@/lib/queries";
+import {
+    categories,
     db,
     developerStatuses,
     problemComments,
@@ -17,6 +22,7 @@ import {
     problemVotes,
     users,
 } from "@/lib/schema";
+import { generateUniqueSlug } from "@/lib/utils";
 import {
     createCommentSchema,
     createProblemSchema,
@@ -24,6 +30,16 @@ import {
 } from "@/lib/validation";
 
 const resend = new Resend(env.RESEND_API_KEY);
+
+export async function getSimilarCategories(name: string) {
+  try {
+    const similarCategories = await searchSimilarCategories(name);
+    return { success: true, categories: similarCategories };
+  } catch (error) {
+    console.error("Error searching categories:", error);
+    return { error: "Failed to search categories" };
+  }
+}
 
 export async function createProblem(data: unknown) {
   try {
@@ -36,19 +52,63 @@ export async function createProblem(data: unknown) {
     // Validate input
     const validatedData = createProblemSchema.parse(data);
 
+    // Determine categoryId
+    let categoryId: string;
+    
+    if (validatedData.category.type === "existing") {
+      categoryId = validatedData.category.categoryId;
+    } else {
+      // Check for similar categories
+      const similarCategories = await searchSimilarCategories(validatedData.category.name);
+      
+      if (similarCategories.length > 0) {
+        // Return suggestion to use existing category
+        return {
+          error: `A similar category "${similarCategories[0].name}" already exists. Please use it instead.`,
+          suggestion: similarCategories[0],
+        };
+      }
+      
+      // Create new category
+      const newCategory = await createCategory(
+        validatedData.category.name,
+        validatedData.category.emoji
+      );
+      categoryId = newCategory.id;
+    }
+
+    // Generate unique slug from title
+    const slug = await generateUniqueSlug(validatedData.title);
+
     // Insert problem
     const [newProblem] = await db
       .insert(problems)
       .values({
-        ...validatedData,
         userId: session.user.id,
+        categoryId,
+        title: validatedData.title,
+        description: validatedData.description,
+        slug,
+        painLevel: validatedData.painLevel,
+        frequency: validatedData.frequency,
+        wouldPay: validatedData.wouldPay,
       })
-      .returning({ id: problems.id });
+      .returning({ id: problems.id, slug: problems.slug });
+
+    // Fetch category slug for redirect
+    const category = await db.query.categories.findFirst({
+      where: eq(categories.id, categoryId),
+    });
 
     revalidatePath("/");
     
-    // Redirect to the new problem detail page
-    redirect(`/problems/${newProblem.id}`);
+    // Redirect to the new problem detail page with slug-based URL
+    if (category) {
+      redirect(`/problems/${category.slug}/${newProblem.slug}`);
+    } else {
+      // Fallback to old URL structure if category not found
+      redirect(`/problems/${newProblem.id}`);
+    }
   } catch (error) {
     console.error("Error creating problem:", error);
     if (error instanceof Error) {

@@ -1,7 +1,29 @@
-import { Github, Moon, Sun } from "lucide-react";
+import {
+  ArrowUp,
+  BarChart3,
+  Database,
+  Github,
+  Lock,
+  Moon,
+  Palette,
+  Rocket,
+  Search,
+  Sun,
+  TestTube,
+  Zap,
+} from "lucide-react";
 
 export const Icons = {
   sun: Sun,
   moon: Moon,
   github: Github,
+  search: Search,
+  performance: Zap,
+  uiux: Palette,
+  database: Database,
+  security: Lock,
+  devops: Rocket,
+  testing: TestTube,
+  analytics: BarChart3,
+  arrowUp: ArrowUp,
 };

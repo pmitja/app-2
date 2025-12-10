@@ -50,7 +50,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         <ThemeProvider attribute="class">
           <AppShell>{children}</AppShell>
           <Toaster />
-          <ThemeSwitcher className="absolute right-5 bottom-5 z-10" />
+          <ThemeSwitcher />
         </ThemeProvider>
       </body>
     </html>

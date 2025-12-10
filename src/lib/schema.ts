@@ -102,6 +102,16 @@ export const authenticators = pgTable(
   ],
 );
 
+export const categories = pgTable("category", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull().unique(),
+  emoji: text("emoji").notNull(),
+  slug: text("slug").notNull().unique(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export const problems = pgTable("problem", {
   id: text("id")
     .primaryKey()
@@ -109,9 +119,12 @@ export const problems = pgTable("problem", {
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  categoryId: text("categoryId")
+    .notNull()
+    .references(() => categories.id, { onDelete: "restrict" }),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  category: text("category").notNull(),
+  slug: text("slug").notNull().unique(),
   painLevel: integer("painLevel").notNull(),
   frequency: text("frequency").notNull(),
   wouldPay: boolean("wouldPay").default(false).notNull(),
@@ -230,6 +243,7 @@ export const db = drizzle({
     sessions,
     verificationTokens,
     authenticators,
+    categories,
     problems,
     problemVotes,
     problemFollows,

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createProblem } from "@/actions/problem-actions";
+import { CategoryInput } from "@/components/category-input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -25,30 +26,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import type { Category } from "@/lib/queries";
 import {
   type CreateProblemFormData,
   createProblemSchema,
 } from "@/lib/validation";
 
-const CATEGORIES = [
-  "Performance",
-  "UI/UX",
-  "Database",
-  "Security",
-  "DevOps",
-  "Testing",
-  "Analytics",
-];
-
 const FREQUENCIES = ["Daily", "Weekly", "Monthly", "Rarely"];
 
-export function ProblemForm() {
+interface ProblemFormProps {
+  categories: Category[];
+}
+
+export function ProblemForm({ categories }: ProblemFormProps) {
   const form = useForm<CreateProblemFormData>({
     resolver: zodResolver(createProblemSchema),
     defaultValues: {
       title: "",
       description: "",
-      category: "Performance",
+      category: {
+        type: "existing",
+        categoryId: categories[0]?.id || "",
+      },
       painLevel: 3,
       frequency: "Daily",
       wouldPay: false,
@@ -119,35 +118,29 @@ export function ProblemForm() {
               )}
             />
 
-            <div className="grid gap-6 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {CATEGORIES.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <FormControl>
+                    <CategoryInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      existingCategories={categories}
+                      error={form.formState.errors.category?.message}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Select an existing category or create a new one
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
+            <div className="grid gap-6 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="frequency"

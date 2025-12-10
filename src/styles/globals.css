@@ -122,3 +122,13 @@
 @utility container {
   @apply max-w-screen-xl mx-auto p-5;
 }
+
+/* Hide scrollbar for category row on mobile */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -2,16 +2,37 @@ import "dotenv/config";
 
 import { eq } from "drizzle-orm";
 
-import { db, developerStatuses, problemComments, problems, problemVotes, users } from "./lib/schema";
+import { categories, db, developerStatuses, problemComments, problems, problemVotes, users } from "./lib/schema";
+import { slugifyTitle } from "./lib/utils";
 
-const CATEGORIES = ["Performance", "UI/UX", "Database", "Security", "DevOps", "Testing", "Analytics"];
+const DEFAULT_CATEGORIES = [
+  { name: "Performance", emoji: "⚡", slug: "performance" },
+  { name: "UI/UX", emoji: "🎨", slug: "ui-ux" },
+  { name: "Database", emoji: "🗄️", slug: "database" },
+  { name: "Security", emoji: "🔒", slug: "security" },
+  { name: "DevOps", emoji: "🚀", slug: "devops" },
+  { name: "Testing", emoji: "🧪", slug: "testing" },
+  { name: "Analytics", emoji: "📊", slug: "analytics" },
+];
 const FREQUENCIES = ["Daily", "Weekly", "Monthly", "Rarely"];
 const PAIN_LEVELS = [1, 2, 3, 4, 5];
 
 async function seed() {
   console.log("Seeding...");
 
-  // 1. Create a main user if not exists
+  // 1. Create default categories if they don't exist
+  let categoryList = await db.query.categories.findMany();
+  
+  if (categoryList.length === 0) {
+    console.log("Creating default categories...");
+    for (const cat of DEFAULT_CATEGORIES) {
+      await db.insert(categories).values(cat).onConflictDoNothing();
+    }
+    categoryList = await db.query.categories.findMany();
+    console.log(`Created ${categoryList.length} categories`);
+  }
+
+  // 2. Create a main user if not exists
   let mainUser = await db.query.users.findFirst({
     where: eq(users.email, "demo@example.com"),
   });
@@ -30,14 +51,29 @@ async function seed() {
     console.log("Created demo user");
   }
 
-  // 2. Create some problems
+  // 3. Create some problems
   const problemsData = [];
+  const usedSlugs = new Set<string>();
+  
   for (let i = 0; i < 20; i++) {
+    const randomCategory = categoryList[Math.floor(Math.random() * categoryList.length)];
+    const title = `Problem ${i + 1}: ${generateRandomTitle()}`;
+    
+    // Generate unique slug
+    let slug = slugifyTitle(title);
+    let counter = 2;
+    while (usedSlugs.has(slug)) {
+      slug = `${slugifyTitle(title)}-${counter}`;
+      counter++;
+    }
+    usedSlugs.add(slug);
+    
     problemsData.push({
       userId: mainUser.id,
-      title: `Problem ${i + 1}: ${generateRandomTitle()}`,
+      title,
       description: `This is a detailed description for problem ${i + 1}. It explains the pain point deeply.`,
-      category: CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)],
+      slug,
+      categoryId: randomCategory.id,
       painLevel: PAIN_LEVELS[Math.floor(Math.random() * PAIN_LEVELS.length)],
       frequency: FREQUENCIES[Math.floor(Math.random() * FREQUENCIES.length)],
       wouldPay: Math.random() > 0.5,
@@ -47,7 +83,7 @@ async function seed() {
   const createdProblems = await db.insert(problems).values(problemsData).returning();
   console.log(`Created ${createdProblems.length} problems`);
 
-  // 3. Add votes, comments, statuses
+  // 4. Add votes, comments, statuses
   for (const problem of createdProblems) {
     // Votes
     if (Math.random() > 0.3) {

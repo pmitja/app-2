@@ -97,17 +97,23 @@ export function checkPasswordStrength(password: string): {
 }
 
 // Problem validation schemas
-export const categorySchema = z.enum([
-  "Performance",
-  "UI/UX",
-  "Database",
-  "Security",
-  "DevOps",
-  "Testing",
-  "Analytics",
-]);
-
 export const frequencySchema = z.enum(["Daily", "Weekly", "Monthly", "Rarely"]);
+
+// Category can be either an existing ID or a new category with name and emoji
+export const categoryInputSchema = z.union([
+  z.object({
+    type: z.literal("existing"),
+    categoryId: z.string().min(1, "Please select a category"),
+  }),
+  z.object({
+    type: z.literal("new"),
+    name: z
+      .string()
+      .min(2, "Category name must be at least 2 characters")
+      .max(50, "Category name must be less than 50 characters"),
+    emoji: z.string().min(1, "Please select an emoji"),
+  }),
+]);
 
 export const createProblemSchema = z.object({
   title: z
@@ -115,7 +121,7 @@ export const createProblemSchema = z.object({
     .min(5, "Title must be at least 5 characters")
     .max(200, "Title must be less than 200 characters"),
   description: z.string().min(20, "Description must be at least 20 characters"),
-  category: categorySchema,
+  category: categoryInputSchema,
   painLevel: z.number().int().min(1).max(5),
   frequency: frequencySchema,
   wouldPay: z.boolean(),

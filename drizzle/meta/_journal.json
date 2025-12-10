@@ -36,6 +36,13 @@
       "when": 1765315312135,
       "tag": "0004_tidy_argent",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1733875200000,
+      "tag": "0005_add_categories_table",
+      "breakpoints": true
     }
   ]
 }

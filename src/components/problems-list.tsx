@@ -28,14 +28,19 @@ export function ProblemsList({ problems }: ProblemsListProps) {
   return (
     <div className="space-y-4">
       {problems.map((problem) => (
-        <Link key={problem.id} href={`/problems/${problem.id}`}>
+        <Link
+          key={problem.id}
+          href={`/problems/${problem.category.slug}/${problem.slug}`}
+        >
           <Card className="cursor-pointer transition-shadow hover:shadow-md">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <CardTitle className="text-xl">{problem.title}</CardTitle>
-                    <Badge variant="secondary">{problem.category}</Badge>
+                    <Badge variant="secondary">
+                      {problem.category.emoji} {problem.category.name}
+                    </Badge>
                   </div>
                   <p className="text-muted-foreground line-clamp-2 text-sm">
                     {problem.description}

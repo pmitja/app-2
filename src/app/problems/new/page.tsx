@@ -1,14 +1,10 @@
-import { redirect } from "next/navigation";
-
-import { ProblemForm } from "@/components/problem-form";
+import { ProblemFormWrapper } from "@/components/problem-form-wrapper";
 import { auth } from "@/lib/auth";
+import { getCategories } from "@/lib/queries";
 
 export default async function NewProblemPage() {
   const session = await auth();
-
-  if (!session?.user) {
-    redirect("/");
-  }
+  const categories = await getCategories();
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -20,7 +16,10 @@ export default async function NewProblemPage() {
         </p>
       </div>
 
-      <ProblemForm />
+      <ProblemFormWrapper
+        categories={categories}
+        isAuthenticated={!!session?.user}
+      />
     </div>
   );
 }

@@ -1,14 +1,12 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export const ThemeSwitcher = () => {
-  const { theme, setTheme } = useTheme();
+export function ScrollToTopButton() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -20,20 +18,23 @@ export const ThemeSwitcher = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <Button
-      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      onClick={scrollToTop}
       size="icon"
       className={cn(
-        "fixed right-6 bottom-6 z-40 rounded-full shadow-lg transition-all duration-300",
+        "fixed right-20 bottom-6 z-40 rounded-full shadow-lg transition-all duration-300",
         isVisible
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-16 opacity-0",
       )}
-      aria-label="Toggle theme"
+      aria-label="Scroll to top"
     >
-      <Icons.sun className="dark:hidden" />
-      <Icons.moon className="hidden dark:block" />
+      <Icons.arrowUp className="size-5" />
     </Button>
   );
-};
+}
