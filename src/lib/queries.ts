@@ -18,6 +18,7 @@ export interface GetProblemsParams {
   category?: string;
   limit?: number;
   offset?: number;
+  userId?: string;
 }
 
 export interface Category {
@@ -44,6 +45,7 @@ export interface ProblemWithVotes {
   wouldPay: boolean;
   createdAt: Date;
   voteCount: number;
+  userHasVoted: boolean;
   author: {
     name: string | null;
     email: string | null;
@@ -66,7 +68,14 @@ export interface ProblemWithVotes {
 export async function getProblems(
   params: GetProblemsParams = {},
 ): Promise<ProblemWithVotes[]> {
-  const { q, sort = "votes", category, limit = 20, offset = 0 } = params;
+  const {
+    q,
+    sort = "votes",
+    category,
+    limit = 20,
+    offset = 0,
+    userId,
+  } = params;
 
   // Build where conditions
   const conditions = [];
@@ -121,6 +130,13 @@ export async function getProblems(
       createdAt: problems.createdAt,
       voteCount: sql<number>`COALESCE(${voteCountSubquery.count}, 0)`,
       solutionCount: sql<number>`COALESCE(${solutionCountSubquery.count}, 0)`,
+      userHasVoted: userId
+        ? sql<boolean>`EXISTS (
+            SELECT 1 FROM ${problemVotes}
+            WHERE ${problemVotes.problemId} = ${problems.id}
+            AND ${problemVotes.userId} = ${userId}
+          )`
+        : sql<boolean>`false`,
       authorName: users.name,
       authorEmail: users.email,
       authorImage: users.image,
@@ -230,6 +246,7 @@ export async function getProblems(
     wouldPay: row.wouldPay,
     createdAt: row.createdAt,
     voteCount: Number(row.voteCount) || 0,
+    userHasVoted: Boolean(row.userHasVoted),
     solutionCount: Number(row.solutionCount) || 0,
     featuredSolution: featuredSolutionsMap.get(row.id) || null,
     author: {

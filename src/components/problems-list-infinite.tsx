@@ -8,10 +8,12 @@ import type { ProblemWithVotes } from "@/lib/queries";
 
 interface ProblemsListInfiniteProps {
   initialProblems: ProblemWithVotes[];
+  isAuthenticated: boolean;
 }
 
 export function ProblemsListInfinite({
   initialProblems,
+  isAuthenticated,
 }: ProblemsListInfiniteProps) {
   const [problems, setProblems] = useState(initialProblems);
   const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +69,7 @@ export function ProblemsListInfinite({
 
   return (
     <>
-      <ProblemsList problems={problems} />
+      <ProblemsList problems={problems} isAuthenticated={isAuthenticated} />
 
       {/* Loading indicator */}
       {isLoading && (
