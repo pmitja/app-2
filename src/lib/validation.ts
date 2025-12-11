@@ -169,6 +169,21 @@ export const sponsorSlotSchema = z.object({
   month: z.string().regex(/^\d{4}-\d{2}$/, "Month must be in YYYY-MM format"),
 });
 
+// Solution validation schema
+export const createSolutionSchema = z.object({
+  title: z
+    .string()
+    .min(5, "Title must be at least 5 characters")
+    .max(100, "Title must be less than 100 characters"),
+  summary: z
+    .string()
+    .min(20, "Summary must be at least 20 characters")
+    .max(300, "Summary must be less than 300 characters"),
+  imageUrl: z.string().url("Please enter a valid logo URL"),
+  targetUrl: z.string().url("Please enter a valid target URL"),
+  promoteNow: z.boolean().default(false),
+});
+
 // Type exports
 export type SignInFormData = z.infer<typeof signInSchema>;
 export type SignUpFormData = z.infer<typeof signUpSchema>;
@@ -181,3 +196,4 @@ export type SetDeveloperStatusFormData = z.infer<
   typeof setDeveloperStatusSchema
 >;
 export type SponsorSlotFormData = z.infer<typeof sponsorSlotSchema>;
+export type CreateSolutionFormData = z.infer<typeof createSolutionSchema>;

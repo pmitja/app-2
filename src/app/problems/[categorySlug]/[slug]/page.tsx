@@ -1,18 +1,52 @@
 import { formatDistanceToNow } from "date-fns";
 import { notFound } from "next/navigation";
+import { ReactNode } from "react";
 
 import { BackToProblemsButton } from "@/components/back-to-problems-button";
 import { CommentForm } from "@/components/comment-form";
 import { DeveloperStatusForm } from "@/components/developer-status-form";
+import { FeaturedSolutionCard } from "@/components/featured-solution-card";
 import { FollowButton } from "@/components/follow-button";
 import { ProblemCreatedToast } from "@/components/problem-created-toast";
+import { SolutionCard } from "@/components/solution-card";
+import { SolutionFormModal } from "@/components/solution-form-modal";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VoteButton } from "@/components/vote-button";
 import { auth } from "@/lib/auth";
-import { getProblemDetailBySlug } from "@/lib/queries";
+import { getProblemDetailBySlug, getProblemSolutions } from "@/lib/queries";
+
+function AccordionSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <details className="group bg-card rounded-lg border shadow-sm">
+      <summary className="flex cursor-pointer items-center justify-between gap-2 px-4 py-3 text-sm font-semibold marker:content-none">
+        <span>{title}</span>
+        <svg
+          aria-hidden
+          className="text-muted-foreground h-4 w-4 transition-transform duration-200 group-open:rotate-180"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M19.5 8.25 12 15.75 4.5 8.25"
+          />
+        </svg>
+      </summary>
+      <div className="border-t px-4 py-4">{children}</div>
+    </details>
+  );
+}
 
 interface ProblemDetailPageProps {
   params: Promise<{
@@ -39,9 +73,9 @@ export default async function ProblemDetailPage({
   const discussionComments = problem.comments.filter(
     (c) => c.type === "discussion",
   );
-  const solutionComments = problem.comments.filter(
-    (c) => c.type === "solution",
-  );
+
+  // Fetch solutions
+  const solutions = await getProblemSolutions(problem.id, session?.user?.id);
 
   return (
     <div className="space-y-6">
@@ -118,151 +152,172 @@ export default async function ProblemDetailPage({
         </CardContent>
       </Card>
 
-      {/* Developer status form */}
-      <DeveloperStatusForm
-        problemId={problem.id}
-        currentStatus={
-          problem.userDeveloperStatus?.status as
-            | "exploring"
-            | "building"
-            | undefined
-        }
-        currentSolutionUrl={problem.userDeveloperStatus?.solutionUrl}
-        isAuthenticated={!!session?.user}
-        isDeveloper={session?.user?.role === "developer"}
-      />
+      {/* Developer status form (only visible to developers) */}
+      {session?.user?.role === "developer" && (
+        <AccordionSection title="Set Your Developer Status">
+          <DeveloperStatusForm
+            problemId={problem.id}
+            currentStatus={
+              problem.userDeveloperStatus?.status as
+                | "exploring"
+                | "building"
+                | undefined
+            }
+            currentSolutionUrl={problem.userDeveloperStatus?.solutionUrl}
+            isAuthenticated={!!session?.user}
+            isDeveloper={session?.user?.role === "developer"}
+            withCard={false}
+          />
+        </AccordionSection>
+      )}
 
       {/* Developer statuses */}
       {problem.developerStatuses.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Developer Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {problem.developerStatuses.map((status) => (
-                <div
-                  key={status.id}
-                  className="flex items-start gap-3 rounded-lg border p-3"
+        <AccordionSection title="Developer Activity">
+          <div className="space-y-3">
+            {problem.developerStatuses.map((status) => (
+              <div
+                key={status.id}
+                className="flex items-start gap-3 rounded-lg border p-3"
+              >
+                <Badge
+                  variant={
+                    status.status === "building" ? "default" : "secondary"
+                  }
                 >
-                  <Badge
-                    variant={
-                      status.status === "building" ? "default" : "secondary"
-                    }
-                  >
-                    {status.status === "building"
-                      ? "🔨 Building"
-                      : "🔍 Exploring"}
-                  </Badge>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium">
-                      {status.developer.name || "Anonymous Developer"}
-                    </p>
-                    {status.solutionUrl && (
-                      <a
-                        href={status.solutionUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary text-sm underline"
-                      >
-                        View Solution →
-                      </a>
-                    )}
-                    <p className="text-muted-foreground text-xs">
-                      {formatDistanceToNow(new Date(status.createdAt), {
-                        addSuffix: true,
-                      })}
-                    </p>
-                  </div>
+                  {status.status === "building"
+                    ? "🔨 Building"
+                    : "🔍 Exploring"}
+                </Badge>
+                <div className="flex-1 space-y-1">
+                  <p className="text-sm font-medium">
+                    {status.developer.name || "Anonymous Developer"}
+                  </p>
+                  {status.solutionUrl && (
+                    <a
+                      href={status.solutionUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary text-sm underline"
+                    >
+                      View Solution →
+                    </a>
+                  )}
+                  <p className="text-muted-foreground text-xs">
+                    {formatDistanceToNow(new Date(status.createdAt), {
+                      addSuffix: true,
+                    })}
+                  </p>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            ))}
+          </div>
+        </AccordionSection>
       )}
 
-      {/* Comments section */}
+      {/* Solutions section */}
       <Card>
         <CardHeader>
-          <CardTitle>Discussion</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>
+              Solutions (
+              {solutions.featured
+                ? 1 + solutions.others.length
+                : solutions.others.length}
+              )
+            </CardTitle>
+            <SolutionFormModal
+              problemId={problem.id}
+              categorySlug={categorySlug}
+              problemSlug={slug}
+              isAuthenticated={!!session?.user}
+              isDeveloper={session?.user?.role === "developer"}
+            />
+          </div>
         </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="discussion" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="discussion">
-                Discussion ({discussionComments.length})
-              </TabsTrigger>
-              <TabsTrigger value="solutions">
-                Solutions ({solutionComments.length})
-              </TabsTrigger>
-            </TabsList>
+        <CardContent className="space-y-6">
+          {/* Featured Solution */}
+          {solutions.featured && (
+            <div className="space-y-2">
+              <FeaturedSolutionCard solution={solutions.featured} />
+            </div>
+          )}
 
-            <TabsContent value="discussion" className="space-y-4 pt-4">
-              <CommentForm
-                problemId={problem.id}
-                type="discussion"
-                isAuthenticated={!!session?.user}
-              />
+          {/* Other Solutions */}
+          {solutions.others.length > 0 && (
+            <div className="space-y-4">
+              {solutions.featured && (
+                <div className="flex items-center gap-2">
+                  <Separator className="flex-1" />
+                  <span className="text-muted-foreground text-sm font-medium">
+                    Other Solutions
+                  </span>
+                  <Separator className="flex-1" />
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                {solutions.others.map((solution) => (
+                  <SolutionCard
+                    key={solution.id}
+                    solution={solution}
+                    categorySlug={categorySlug}
+                    problemSlug={slug}
+                    canPromote={!solutions.featured}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
-              {discussionComments.length > 0 ? (
-                discussionComments.map((comment) => (
-                  <div
-                    key={comment.id}
-                    className="space-y-2 rounded-lg border p-4"
-                  >
-                    <div className="flex items-start justify-between">
-                      <p className="text-sm font-medium">
-                        {comment.author.name || "Anonymous"}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        {formatDistanceToNow(new Date(comment.createdAt), {
-                          addSuffix: true,
-                        })}
-                      </p>
-                    </div>
-                    <p className="text-sm">{comment.content}</p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-muted-foreground text-center text-sm">
-                  No discussions yet. Be the first to comment!
+          {/* Empty State */}
+          {!solutions.featured && solutions.others.length === 0 && (
+            <div className="text-muted-foreground flex flex-col items-center justify-center space-y-2 rounded-lg border border-dashed py-12 text-center">
+              <p className="text-sm font-medium">
+                No solutions yet. Be the first to share yours!
+              </p>
+              {session?.user?.role !== "developer" && (
+                <p className="text-xs">
+                  Developer role required to post solutions.
                 </p>
               )}
-            </TabsContent>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-            <TabsContent value="solutions" className="space-y-4 pt-4">
-              <CommentForm
-                problemId={problem.id}
-                type="solution"
-                isAuthenticated={!!session?.user}
-              />
+      {/* Discussion section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Discussion ({discussionComments.length})</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <CommentForm
+            problemId={problem.id}
+            type="discussion"
+            isAuthenticated={!!session?.user}
+          />
 
-              {solutionComments.length > 0 ? (
-                solutionComments.map((comment) => (
-                  <div
-                    key={comment.id}
-                    className="space-y-2 rounded-lg border p-4"
-                  >
-                    <div className="flex items-start justify-between">
-                      <p className="text-sm font-medium">
-                        {comment.author.name || "Anonymous"}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        {formatDistanceToNow(new Date(comment.createdAt), {
-                          addSuffix: true,
-                        })}
-                      </p>
-                    </div>
-                    <p className="text-sm">{comment.content}</p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-muted-foreground text-center text-sm">
-                  No solutions proposed yet. Share your ideas!
-                </p>
-              )}
-            </TabsContent>
-          </Tabs>
+          {discussionComments.length > 0 ? (
+            discussionComments.map((comment) => (
+              <div key={comment.id} className="space-y-2 rounded-lg border p-4">
+                <div className="flex items-start justify-between">
+                  <p className="text-sm font-medium">
+                    {comment.author.name || "Anonymous"}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    {formatDistanceToNow(new Date(comment.createdAt), {
+                      addSuffix: true,
+                    })}
+                  </p>
+                </div>
+                <p className="text-sm">{comment.content}</p>
+              </div>
+            ))
+          ) : (
+            <p className="text-muted-foreground text-center text-sm">
+              No discussions yet. Be the first to comment!
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>

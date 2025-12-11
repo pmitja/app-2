@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -34,9 +35,12 @@ export function ProblemsList({ problems }: ProblemsListProps) {
         const currentFilters = searchParams.toString();
         const href = `/problems/${problem.category.slug}/${problem.slug}${currentFilters ? `?from=${encodeURIComponent(currentFilters)}` : ""}`;
 
+        const hasSolutions = problem.solutionCount > 0;
+        const hasFeaturedSolution = problem.featuredSolution !== null;
+
         return (
           <Link key={problem.id} href={href}>
-            <Card className="cursor-pointer transition-shadow hover:shadow-md">
+            <Card className="relative cursor-pointer overflow-hidden transition-shadow hover:shadow-md">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 space-y-2">
@@ -49,6 +53,14 @@ export function ProblemsList({ problems }: ProblemsListProps) {
                     <p className="text-muted-foreground line-clamp-2 text-sm">
                       {problem.description}
                     </p>
+                    {hasSolutions && (
+                      <Badge
+                        variant="default"
+                        className="border-green-700 bg-green-600 font-semibold text-white hover:bg-green-700"
+                      >
+                        ✓ Solved
+                      </Badge>
+                    )}
                   </div>
                   <Button
                     variant="outline"
@@ -61,7 +73,7 @@ export function ProblemsList({ problems }: ProblemsListProps) {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="pt-0">
+              <CardContent className="space-y-3 pt-0">
                 <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs">
                   <Badge variant="outline" className="text-xs">
                     Pain Level: {problem.painLevel}/5
@@ -78,6 +90,78 @@ export function ProblemsList({ problems }: ProblemsListProps) {
                     </Badge>
                   )}
                 </div>
+                {hasFeaturedSolution && problem.featuredSolution && (
+                  <div
+                    className="space-y-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant="default"
+                        className="bg-primary/10 text-primary border-primary/20 text-xs font-medium"
+                      >
+                        💡 Featured Solution
+                      </Badge>
+                    </div>
+                    <Link
+                      href={problem.featuredSolution.targetUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                    >
+                      <Card className="group border-primary/20 hover:border-primary/40 flex flex-row items-center gap-3 border-2 p-3 transition-colors">
+                        <div className="bg-muted relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg">
+                          <Image
+                            src={problem.featuredSolution.imageUrl}
+                            alt={problem.featuredSolution.title}
+                            fill
+                            className="object-contain p-1.5 transition-transform group-hover:scale-105"
+                            sizes="64px"
+                          />
+                          <Badge
+                            variant="default"
+                            className="absolute -top-1 -right-1 z-10 h-5 px-1.5 text-[10px] shadow-md"
+                          >
+                            ⭐
+                          </Badge>
+                        </div>
+                        <CardContent className="flex-1 space-y-1 p-0">
+                          <h4 className="line-clamp-1 text-sm font-semibold">
+                            {problem.featuredSolution.title}
+                          </h4>
+                          <p className="text-muted-foreground line-clamp-1 text-xs">
+                            {problem.featuredSolution.summary}
+                          </p>
+                          <div className="flex items-center gap-1.5">
+                            {problem.featuredSolution.author.image && (
+                              <div className="relative h-4 w-4 overflow-hidden rounded-full">
+                                <Image
+                                  src={problem.featuredSolution.author.image}
+                                  alt={
+                                    problem.featuredSolution.author.name ||
+                                    "Author"
+                                  }
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                            )}
+                            <span className="text-muted-foreground text-xs">
+                              {problem.featuredSolution.author.name ||
+                                "Anonymous"}
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </Link>

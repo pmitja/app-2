@@ -7,6 +7,7 @@ import {
     problemComments,
     problemFollows,
     problems,
+    problemSolutions,
     problemVotes,
     users,
 } from "./schema";
@@ -48,6 +49,18 @@ export interface ProblemWithVotes {
     email: string | null;
     image: string | null;
   };
+  solutionCount: number;
+  featuredSolution: {
+    id: string;
+    title: string;
+    summary: string;
+    imageUrl: string;
+    targetUrl: string;
+    author: {
+      name: string | null;
+      image: string | null;
+    };
+  } | null;
 }
 
 export async function getProblems(
@@ -80,6 +93,16 @@ export async function getProblems(
     .groupBy(problemVotes.problemId)
     .as("vote_counts");
 
+  // Create a subquery to count solutions for each problem
+  const solutionCountSubquery = db
+    .select({
+      problemId: problemSolutions.problemId,
+      count: count().as("solution_count"),
+    })
+    .from(problemSolutions)
+    .groupBy(problemSolutions.problemId)
+    .as("solution_counts");
+
   // Main query with joins
   const query = db
     .select({
@@ -97,12 +120,14 @@ export async function getProblems(
       wouldPay: problems.wouldPay,
       createdAt: problems.createdAt,
       voteCount: sql<number>`COALESCE(${voteCountSubquery.count}, 0)`,
+      solutionCount: sql<number>`COALESCE(${solutionCountSubquery.count}, 0)`,
       authorName: users.name,
       authorEmail: users.email,
       authorImage: users.image,
     })
     .from(problems)
     .leftJoin(voteCountSubquery, eq(problems.id, voteCountSubquery.problemId))
+    .leftJoin(solutionCountSubquery, eq(problems.id, solutionCountSubquery.problemId))
     .leftJoin(users, eq(problems.userId, users.id))
     .leftJoin(categories, eq(problems.categoryId, categories.id));
 
@@ -130,6 +155,63 @@ export async function getProblems(
 
   const results = await query;
 
+  // Get problem IDs that have solutions
+  const problemIdsWithSolutions = results
+    .filter((row) => Number(row.solutionCount) > 0)
+    .map((row) => row.id);
+
+  // Fetch featured solutions for problems that have them
+  const featuredSolutionsMap = new Map<
+    string,
+    {
+      id: string;
+      title: string;
+      summary: string;
+      imageUrl: string;
+      targetUrl: string;
+      author: {
+        name: string | null;
+        image: string | null;
+      };
+    }
+  >();
+
+  if (problemIdsWithSolutions.length > 0) {
+    const featuredSolutionsData = await db
+      .select({
+        problemId: problemSolutions.problemId,
+        id: problemSolutions.id,
+        title: problemSolutions.title,
+        summary: problemSolutions.summary,
+        imageUrl: problemSolutions.imageUrl,
+        targetUrl: problemSolutions.targetUrl,
+        authorName: users.name,
+        authorImage: users.image,
+      })
+      .from(problemSolutions)
+      .leftJoin(users, eq(problemSolutions.userId, users.id))
+      .where(
+        and(
+          inArray(problemSolutions.problemId, problemIdsWithSolutions),
+          eq(problemSolutions.isFeatured, true)
+        )
+      );
+
+    for (const solution of featuredSolutionsData) {
+      featuredSolutionsMap.set(solution.problemId, {
+        id: solution.id,
+        title: solution.title,
+        summary: solution.summary,
+        imageUrl: solution.imageUrl,
+        targetUrl: solution.targetUrl,
+        author: {
+          name: solution.authorName,
+          image: solution.authorImage,
+        },
+      });
+    }
+  }
+
   // Transform results to match the interface
   return results.map((row) => ({
     id: row.id,
@@ -148,6 +230,8 @@ export async function getProblems(
     wouldPay: row.wouldPay,
     createdAt: row.createdAt,
     voteCount: Number(row.voteCount) || 0,
+    solutionCount: Number(row.solutionCount) || 0,
+    featuredSolution: featuredSolutionsMap.get(row.id) || null,
     author: {
       name: row.authorName,
       email: row.authorEmail,
@@ -499,4 +583,71 @@ export async function getProblemDetailBySlug(
 
   // Reuse the existing getProblemDetail logic by calling it with the problem ID
   return getProblemDetail(problem.id, userId);
+}
+
+// Solution types and queries
+export interface ProblemSolution {
+  id: string;
+  problemId: string;
+  title: string;
+  summary: string;
+  imageUrl: string;
+  targetUrl: string;
+  isFeatured: boolean;
+  createdAt: Date;
+  author: {
+    id: string;
+    name: string | null;
+    image: string | null;
+  };
+  isOwner: boolean;
+}
+
+export async function getProblemSolutions(
+  problemId: string,
+  userId?: string,
+): Promise<{ featured: ProblemSolution | null; others: ProblemSolution[] }> {
+  // Fetch all solutions for the problem with author info
+  const solutionsData = await db
+    .select({
+      id: problemSolutions.id,
+      problemId: problemSolutions.problemId,
+      title: problemSolutions.title,
+      summary: problemSolutions.summary,
+      imageUrl: problemSolutions.imageUrl,
+      targetUrl: problemSolutions.targetUrl,
+      isFeatured: problemSolutions.isFeatured,
+      createdAt: problemSolutions.createdAt,
+      authorId: users.id,
+      authorName: users.name,
+      authorImage: users.image,
+      solutionUserId: problemSolutions.userId,
+    })
+    .from(problemSolutions)
+    .leftJoin(users, eq(problemSolutions.userId, users.id))
+    .where(eq(problemSolutions.problemId, problemId))
+    .orderBy(desc(problemSolutions.isFeatured), desc(problemSolutions.createdAt));
+
+  const solutions: ProblemSolution[] = solutionsData.map((solution) => ({
+    id: solution.id,
+    problemId: solution.problemId,
+    title: solution.title,
+    summary: solution.summary,
+    imageUrl: solution.imageUrl,
+    targetUrl: solution.targetUrl,
+    isFeatured: solution.isFeatured,
+    createdAt: solution.createdAt,
+    author: {
+      id: solution.authorId || "",
+      name: solution.authorName,
+      image: solution.authorImage,
+    },
+    isOwner: userId ? solution.solutionUserId === userId : false,
+  }));
+
+  // Separate featured from others
+  const featured = solutions.find((s) => s.isFeatured) || null;
+  const others = solutions.filter((s) => !s.isFeatured);
+
+  return { featured, others };
 }

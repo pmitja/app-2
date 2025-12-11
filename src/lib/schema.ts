@@ -1,13 +1,13 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import {
-  boolean,
-  integer,
-  pgTable,
-  primaryKey,
-  text,
-  timestamp,
-  unique,
+    boolean,
+    integer,
+    pgTable,
+    primaryKey,
+    text,
+    timestamp,
+    unique,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
@@ -234,6 +234,26 @@ export const sponsorSlots = pgTable("sponsor_slot", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const problemSolutions = pgTable("problem_solution", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  problemId: text("problemId")
+    .notNull()
+    .references(() => problems.id, { onDelete: "cascade" }),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  summary: text("summary").notNull(),
+  imageUrl: text("imageUrl").notNull(),
+  targetUrl: text("targetUrl").notNull(),
+  isFeatured: boolean("isFeatured").default(false).notNull(),
+  stripePaymentIntentId: text("stripePaymentIntentId"),
+  amount: integer("amount"), // 999 cents for promotion
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 // Initialize drizzle with schema for query mode
 export const db = drizzle({ 
   client: sql, 
@@ -250,5 +270,6 @@ export const db = drizzle({
     problemComments,
     developerStatuses,
     sponsorSlots,
+    problemSolutions,
   }
 });

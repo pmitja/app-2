@@ -59,37 +59,58 @@ export default function Loading() {
         </CardContent>
       </Card>
 
-      {/* Comments section skeleton */}
+      {/* Solutions section skeleton */}
       <Card>
         <CardHeader>
-          <CardTitle>Discussion</CardTitle>
+          <CardTitle>
+            <Skeleton className="h-6 w-32" />
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Tabs skeleton */}
-            <div className="flex gap-2">
-              <Skeleton className="h-10 flex-1" />
-              <Skeleton className="h-10 flex-1" />
-            </div>
+        <CardContent className="space-y-6">
+          {/* Solution form skeleton */}
+          <div className="space-y-2">
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-10 w-32" />
+          </div>
 
-            {/* Comment form skeleton */}
-            <div className="space-y-2 pt-4">
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-10 w-32" />
-            </div>
-
-            {/* Comment items skeleton */}
+          {/* Solution cards skeleton */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="space-y-2 rounded-lg border p-4">
-                <div className="flex items-start justify-between">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-24" />
-                </div>
+                <Skeleton className="h-5 w-3/4" />
                 <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-2/3" />
               </div>
             ))}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Discussion section skeleton */}
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Skeleton className="h-6 w-32" />
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Comment form skeleton */}
+          <div className="space-y-2">
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-10 w-32" />
+          </div>
+
+          {/* Comment items skeleton */}
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="space-y-2 rounded-lg border p-4">
+              <div className="flex items-start justify-between">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          ))}
         </CardContent>
       </Card>
     </div>

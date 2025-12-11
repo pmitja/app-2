@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { ReactNode, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { setDeveloperStatus } from "@/actions/problem-actions";
@@ -15,6 +15,7 @@ interface DeveloperStatusFormProps {
   currentSolutionUrl?: string | null;
   isAuthenticated: boolean;
   isDeveloper: boolean;
+  withCard?: boolean;
 }
 
 export function DeveloperStatusForm({
@@ -23,6 +24,7 @@ export function DeveloperStatusForm({
   currentSolutionUrl,
   isAuthenticated,
   isDeveloper,
+  withCard = true,
 }: DeveloperStatusFormProps) {
   const [selectedStatus, setSelectedStatus] = useState<
     "exploring" | "building" | null
@@ -58,97 +60,93 @@ export function DeveloperStatusForm({
     });
   };
 
-  if (!isAuthenticated) {
-    return (
+  const renderSection = (title: string, content: ReactNode) =>
+    withCard ? (
       <Card>
         <CardHeader>
-          <CardTitle>Developer Status</CardTitle>
+          <CardTitle>{title}</CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-sm">
-            Please sign in to set your developer status on this problem.
-          </p>
-        </CardContent>
+        <CardContent>{content}</CardContent>
       </Card>
+    ) : (
+      <div className="space-y-4">{content}</div>
+    );
+
+  if (!isAuthenticated) {
+    return renderSection(
+      "Developer Status",
+      <p className="text-muted-foreground text-sm">
+        Please sign in to set your developer status on this problem.
+      </p>,
     );
   }
 
   if (!isDeveloper) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Developer Status</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-sm">
-            Want to work on solving this problem? Contact support to become a
-            developer and gain access to developer features.
-          </p>
-        </CardContent>
-      </Card>
+    return renderSection(
+      "Developer Status",
+      <p className="text-muted-foreground text-sm">
+        Want to work on solving this problem? Contact support to become a
+        developer and gain access to developer features.
+      </p>,
     );
   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Set Your Developer Status</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-3">
-          <Button
-            onClick={() => handleStatusChange("exploring")}
-            variant={selectedStatus === "exploring" ? "default" : "outline"}
-            disabled={isPending}
-            className="flex items-center gap-2"
-          >
-            🔍 Exploring
-          </Button>
-          <Button
-            onClick={() => handleStatusChange("building")}
-            variant={selectedStatus === "building" ? "default" : "outline"}
-            disabled={isPending}
-            className="flex items-center gap-2"
-          >
-            🔨 Building
-          </Button>
-        </div>
+  return renderSection(
+    "Set Your Developer Status",
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-3">
+        <Button
+          onClick={() => handleStatusChange("exploring")}
+          variant={selectedStatus === "exploring" ? "default" : "outline"}
+          disabled={isPending}
+          className="flex items-center gap-2"
+        >
+          🔍 Exploring
+        </Button>
+        <Button
+          onClick={() => handleStatusChange("building")}
+          variant={selectedStatus === "building" ? "default" : "outline"}
+          disabled={isPending}
+          className="flex items-center gap-2"
+        >
+          🔨 Building
+        </Button>
+      </div>
 
-        {selectedStatus && (
-          <div className="space-y-2">
-            <Label htmlFor="solutionUrl">Solution URL (optional)</Label>
-            <div className="flex gap-2">
-              <Input
-                id="solutionUrl"
-                type="url"
-                value={solutionUrl}
-                onChange={(e) => setSolutionUrl(e.target.value)}
-                placeholder="https://github.com/username/solution"
-                disabled={isPending}
-              />
-              <Button
-                onClick={() => handleStatusChange(selectedStatus)}
-                disabled={isPending}
-                variant="secondary"
-              >
-                {isPending ? "Updating..." : "Update URL"}
-              </Button>
-            </div>
-            <p className="text-muted-foreground text-xs">
-              Share a link to your solution, repository, or demo
-            </p>
+      {selectedStatus && (
+        <div className="space-y-2">
+          <Label htmlFor="solutionUrl">Solution URL (optional)</Label>
+          <div className="flex gap-2">
+            <Input
+              id="solutionUrl"
+              type="url"
+              value={solutionUrl}
+              onChange={(e) => setSolutionUrl(e.target.value)}
+              placeholder="https://github.com/username/solution"
+              disabled={isPending}
+            />
+            <Button
+              onClick={() => handleStatusChange(selectedStatus)}
+              disabled={isPending}
+              variant="secondary"
+            >
+              {isPending ? "Updating..." : "Update URL"}
+            </Button>
           </div>
-        )}
-
-        {selectedStatus && (
-          <p className="text-muted-foreground text-sm">
-            Current status:{" "}
-            <span className="font-medium">
-              {selectedStatus === "exploring" ? "🔍 Exploring" : "🔨 Building"}
-            </span>
+          <p className="text-muted-foreground text-xs">
+            Share a link to your solution, repository, or demo
           </p>
-        )}
-      </CardContent>
-    </Card>
+        </div>
+      )}
+
+      {selectedStatus && (
+        <p className="text-muted-foreground text-sm">
+          Current status:{" "}
+          <span className="font-medium">
+            {selectedStatus === "exploring" ? "🔍 Exploring" : "🔨 Building"}
+          </span>
+        </p>
+      )}
+    </div>,
   );
 }
