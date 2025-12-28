@@ -1,20 +1,20 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import {
-    boolean,
-    integer,
-    pgTable,
-    primaryKey,
-    text,
-    timestamp,
-    unique,
+  boolean,
+  integer,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  unique,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
 // Initialize database connection
 // Use a placeholder during build if DATABASE_URL is not available
 // This prevents neon() from throwing an error during the build phase
-const databaseUrl = process.env.DATABASE_URL || "https://placeholder.neon.tech";
+const databaseUrl = process.env.NEXT_PUBLIC_DATABASE_URL || "https://placeholder.neon.tech";
 const sql = neon(databaseUrl);
 
 export const users = pgTable("user", {
