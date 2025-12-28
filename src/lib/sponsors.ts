@@ -21,6 +21,7 @@ export type Sponsor = {
   tagline: string;
   href: string;
   logo?: string; // emoji or short text fallback
+  backgroundImageUrl?: string; // optional background image for premium cards
   variant: SponsorVariant;
   placement: SponsorPlacement[];
   priority: number;
@@ -63,6 +64,7 @@ export function mapSponsorSlotToSponsor(row: {
   description: string;
   ctaUrl: string;
   logo: string | null;
+  backgroundImageUrl?: string | null;
   variant: string;
   placements: string;
   priority: number | null;
@@ -75,6 +77,7 @@ export function mapSponsorSlotToSponsor(row: {
     tagline: row.description,
     href: row.ctaUrl,
     logo: row.logo ?? undefined,
+    backgroundImageUrl: row.backgroundImageUrl ?? undefined,
     variant: (row.variant as SponsorVariant) || "blue",
     placement: parsePlacements(row.placements ?? undefined),
     priority: row.priority ?? 0,
@@ -88,7 +91,30 @@ export function getSponsorsByPlacement(
   sponsors: Sponsor[],
   placement: SponsorPlacement,
 ): Sponsor[] {
-  return sponsors
+  // First, try to get sponsors with the exact placement
+  const exactMatches = sponsors
     .filter((s) => s.active && s.placement.includes(placement))
     .sort((a, b) => a.priority - b.priority);
+
+  // If we have exact matches, return them
+  if (exactMatches.length > 0) {
+    return exactMatches;
+  }
+
+  // Fallback: For mobile carousels, use desktop rail sponsors
+  // This ensures mobile users see sponsors even if they're only configured for desktop
+  const fallbackPlacements: Partial<Record<SponsorPlacement, SponsorPlacement[]>> = {
+    MOBILE_CAROUSEL_TOP: ["RAIL_LEFT", "RAIL_RIGHT"],
+    MOBILE_CAROUSEL_BOTTOM: ["RAIL_LEFT", "RAIL_RIGHT"],
+  };
+
+  const fallbacks = fallbackPlacements[placement];
+  if (fallbacks) {
+    return sponsors
+      .filter((s) => s.active && fallbacks.some((fb) => s.placement.includes(fb)))
+      .sort((a, b) => a.priority - b.priority);
+  }
+
+  // No matches and no fallback available
+  return [];
 }

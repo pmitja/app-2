@@ -177,7 +177,7 @@ export function SolutionForm({
                 />
               </FormControl>
               <FormDescription>
-                URL to your solution's logo (square format recommended)
+                URL to your solution&apos;s logo (square format recommended)
               </FormDescription>
               <FormMessage />
             </FormItem>

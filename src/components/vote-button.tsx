@@ -28,7 +28,10 @@ export function VoteButton({
     }),
   );
 
-  const handleVote = () => {
+  const handleVote = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     if (!isAuthenticated) {
       toast.error("Please sign in to vote");
       return;

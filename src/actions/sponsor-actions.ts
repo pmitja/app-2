@@ -11,7 +11,7 @@ import { stripeServer } from "@/lib/stripe";
 import { sponsorSlotSchema } from "@/lib/validation";
 
 const SPONSOR_PRICE = 9900; // $99 in cents
-const MAX_SPONSORS_PER_MONTH = 20;
+const MAX_SPONSORS_PER_MONTH = 12; // 6 left rail + 6 right rail
 
 // Get the next available month in YYYY-MM format
 function getNextMonth(): string {
@@ -73,6 +73,7 @@ export async function createSponsorCheckout(formData: unknown) {
         ctaText: validatedData.ctaText,
         ctaUrl: validatedData.ctaUrl,
         imageUrl: validatedData.imageUrl || null,
+        backgroundImageUrl: validatedData.backgroundImageUrl || null,
         // Layout / display defaults for new sponsors
         logo: null,
         variant: "blue",
@@ -182,6 +183,7 @@ export async function getActiveSponsors(month?: string) {
         ctaText: sponsorSlots.ctaText,
         ctaUrl: sponsorSlots.ctaUrl,
         imageUrl: sponsorSlots.imageUrl,
+        backgroundImageUrl: sponsorSlots.backgroundImageUrl,
         month: sponsorSlots.month,
         status: sponsorSlots.status,
         logo: sponsorSlots.logo,
@@ -226,7 +228,26 @@ export async function getSponsorsForLayout() {
         ),
       );
 
+    console.log("[getSponsorsForLayout] Target month:", targetMonth);
+    console.log("[getSponsorsForLayout] Raw rows from DB:", rows.length);
+    console.log(
+      "[getSponsorsForLayout] backgroundImageUrl values:",
+      rows.map((r) => ({
+        title: r.title,
+        backgroundImageUrl: r.backgroundImageUrl,
+        hasBackground: !!r.backgroundImageUrl,
+      })),
+    );
+
     const sponsors = rows.map((row) => mapSponsorSlotToSponsor(row));
+
+    console.log(
+      "[getSponsorsForLayout] After mapping:",
+      sponsors.map((s) => ({
+        name: s.name,
+        backgroundImageUrl: s.backgroundImageUrl,
+      })),
+    );
 
     return {
       success: true,
@@ -279,6 +300,7 @@ export async function seedDemoSponsors() {
         ctaText: "Try DebugBear",
         ctaUrl: "https://debugbear.com",
         imageUrl: null,
+        backgroundImageUrl: null,
         logo: "🪲",
         variant: "blue",
         placements: "RAIL_LEFT,RAIL_RIGHT,MOBILE_CAROUSEL_TOP",
@@ -290,6 +312,7 @@ export async function seedDemoSponsors() {
         ctaText: "Book with SavvyCal",
         ctaUrl: "https://savvycal.com",
         imageUrl: null,
+        backgroundImageUrl: null,
         logo: "📆",
         variant: "purple",
         placements: "RAIL_LEFT,MOBILE_CAROUSEL_BOTTOM",
@@ -301,6 +324,7 @@ export async function seedDemoSponsors() {
         ctaText: "View Fathom",
         ctaUrl: "https://usefathom.com",
         imageUrl: null,
+        backgroundImageUrl: null,
         logo: "📈",
         variant: "green",
         placements: "RAIL_RIGHT,MOBILE_CAROUSEL_TOP",
@@ -312,6 +336,7 @@ export async function seedDemoSponsors() {
         ctaText: "Explore Postmark",
         ctaUrl: "https://postmarkapp.com",
         imageUrl: null,
+        backgroundImageUrl: null,
         logo: "✉️",
         variant: "amber",
         placements: "RAIL_LEFT,MOBILE_CAROUSEL_BOTTOM",
@@ -323,6 +348,7 @@ export async function seedDemoSponsors() {
         ctaText: "Try Plausible",
         ctaUrl: "https://plausible.io",
         imageUrl: null,
+        backgroundImageUrl: null,
         logo: "📊",
         variant: "slate",
         placements: "RAIL_RIGHT,MOBILE_CAROUSEL_TOP",
@@ -334,6 +360,7 @@ export async function seedDemoSponsors() {
         ctaText: "Book with Cal",
         ctaUrl: "https://cal.com",
         imageUrl: null,
+        backgroundImageUrl: null,
         logo: "📅",
         variant: "blue",
         placements: "RAIL_LEFT,MOBILE_CAROUSEL_BOTTOM",
@@ -345,6 +372,7 @@ export async function seedDemoSponsors() {
         ctaText: "Try Linear",
         ctaUrl: "https://linear.app",
         imageUrl: null,
+        backgroundImageUrl: null,
         logo: "⚡",
         variant: "purple",
         placements: "RAIL_RIGHT,MOBILE_CAROUSEL_TOP",
@@ -356,6 +384,7 @@ export async function seedDemoSponsors() {
         ctaText: "Download Raycast",
         ctaUrl: "https://raycast.com",
         imageUrl: null,
+        backgroundImageUrl: null,
         logo: "🚀",
         variant: "red",
         placements: "MOBILE_CAROUSEL_BOTTOM",
@@ -382,6 +411,7 @@ export async function seedDemoSponsors() {
         ctaText: s.ctaText,
         ctaUrl: s.ctaUrl,
         imageUrl: s.imageUrl,
+        backgroundImageUrl: s.backgroundImageUrl,
         logo: s.logo,
         variant: s.variant,
         placements: s.placements,

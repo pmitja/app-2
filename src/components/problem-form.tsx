@@ -45,7 +45,6 @@ export function ProblemForm({ categories }: ProblemFormProps) {
       title: "",
       description: "",
       category: {
-        type: "existing",
         categoryId: categories[0]?.id || "",
       },
       painLevel: 3,
@@ -68,8 +67,8 @@ export function ProblemForm({ categories }: ProblemFormProps) {
         error &&
         typeof error === "object" &&
         "digest" in error &&
-        typeof (error as any).digest === "string" &&
-        (error as any).digest.includes("NEXT_REDIRECT");
+        typeof (error as { digest?: string }).digest === "string" &&
+        (error as { digest?: string }).digest?.includes("NEXT_REDIRECT");
 
       if (!isRedirectError) {
         console.error(error);
@@ -143,7 +142,7 @@ export function ProblemForm({ categories }: ProblemFormProps) {
                     />
                   </FormControl>
                   <FormDescription>
-                    Select an existing category or create a new one
+                    Select a category for your problem
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

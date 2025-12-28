@@ -11,6 +11,7 @@ import {
   createSponsorCheckout,
   getSponsorAvailability,
 } from "@/actions/sponsor-actions";
+import { SponsorCard } from "@/components/sponsors/sponsor-card";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import type { Sponsor } from "@/lib/sponsors";
 import { sponsorSlotSchema } from "@/lib/validation";
 
 type SponsorFormData = z.infer<typeof sponsorSlotSchema>;
@@ -236,6 +238,27 @@ export default function SponsorCheckoutPage() {
                     )}
                   </div>
 
+                  {/* Background Image URL */}
+                  <div className="space-y-2">
+                    <Label htmlFor="backgroundImageUrl">
+                      Background Image URL (optional - Premium Card)
+                    </Label>
+                    <Input
+                      id="backgroundImageUrl"
+                      type="url"
+                      placeholder="https://example.com/background.jpg"
+                      {...register("backgroundImageUrl")}
+                    />
+                    <p className="text-muted-foreground text-xs">
+                      Add a background image for a premium card design
+                    </p>
+                    {errors.backgroundImageUrl && (
+                      <p className="text-destructive text-sm">
+                        {errors.backgroundImageUrl.message}
+                      </p>
+                    )}
+                  </div>
+
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? "Processing..." : "Proceed to Payment ($99)"}
                   </Button>
@@ -252,39 +275,24 @@ export default function SponsorCheckoutPage() {
                 <CardDescription>How your ad will appear</CardDescription>
               </CardHeader>
               <CardContent>
-                <Card className="overflow-hidden">
-                  <CardHeader className="space-y-2 pb-3">
-                    <div className="flex items-start justify-between">
-                      <span className="bg-secondary rounded px-2 py-1 text-xs">
-                        Sponsored
-                      </span>
-                    </div>
-                    <CardTitle className="text-sm">
-                      {formValues.title || "Your Company Name"}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {formValues.imageUrl && (
-                      <div className="bg-secondary flex items-center justify-center rounded p-2">
-                        <img
-                          src={formValues.imageUrl}
-                          alt="Logo preview"
-                          className="max-h-12 max-w-full object-contain"
-                          onError={(e) => {
-                            e.currentTarget.style.display = "none";
-                          }}
-                        />
-                      </div>
-                    )}
-                    <p className="text-muted-foreground text-xs">
-                      {formValues.description ||
-                        "Your description will appear here"}
-                    </p>
-                    <Button size="sm" variant="outline" className="w-full">
-                      {formValues.ctaText || "Call to Action"}
-                    </Button>
-                  </CardContent>
-                </Card>
+                <SponsorCard
+                  sponsor={
+                    {
+                      id: "preview",
+                      name: formValues.title || "Your Company Name",
+                      tagline:
+                        formValues.description ||
+                        "Your description will appear here",
+                      href: formValues.ctaUrl || "#",
+                      logo: formValues.imageUrl ? "📸" : undefined,
+                      backgroundImageUrl: formValues.backgroundImageUrl || undefined,
+                      variant: "blue",
+                      placement: ["RAIL_LEFT"],
+                      priority: 0,
+                      active: true,
+                    } as Sponsor
+                  }
+                />
 
                 <div className="text-muted-foreground mt-4 space-y-2 text-sm">
                   <p>✓ Your ad will rotate every 10 seconds</p>
@@ -294,6 +302,11 @@ export default function SponsorCheckoutPage() {
                     ✓ Fair visibility with {availability.nextCount + 1}/
                     {availability.maxSponsors} sponsors
                   </p>
+                  {formValues.backgroundImageUrl && (
+                    <p className="text-primary font-medium">
+                      ✨ Premium card style activated!
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>

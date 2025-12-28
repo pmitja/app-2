@@ -17,12 +17,12 @@ export async function AppShell({ children }: AppShellProps) {
       <HeaderBar session={session} />
 
       <SponsorsProvider>
-        {/* Top carousel - mobile/tablet only, fixed at top */}
-        <div className="fixed top-0 right-0 left-0 z-40 lg:hidden">
+        {/* Top carousel - mobile/tablet only, in document flow */}
+        <div className="lg:hidden">
           <SponsorCarousel placement="MOBILE_CAROUSEL_TOP" direction="ltr" />
         </div>
 
-        <div className="flex flex-1 gap-6 py-6 pt-24 pb-24 lg:py-6">
+        <div className="flex flex-1 gap-6 py-0 pb-28 lg:py-6">
           {/* Left Sponsor Rail - Desktop only, outside container */}
           <aside className="hidden lg:block lg:min-w-[200px] lg:flex-1 lg:pl-4">
             <div className="sticky top-20">
@@ -31,7 +31,7 @@ export async function AppShell({ children }: AppShellProps) {
           </aside>
 
           {/* Main Content - centered with container */}
-          <main className="container">
+          <main className="container pt-0 md:pt-5">
             {/* Optional top sponsor bar (desktop + mobile, behind feature flag) */}
             <SponsorBar placement="TOP_BAR" />
 

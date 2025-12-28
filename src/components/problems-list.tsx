@@ -79,25 +79,12 @@ export function ProblemsList({
                     </Badge>
                   )}
                 </div>
-                <div
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                  onKeyDown={(e) => {
-                    // Keep keyboard interactions local to the vote button
-                    if (e.key === " " || e.key === "Enter") {
-                      e.stopPropagation();
-                    }
-                  }}
-                >
-                  <VoteButton
-                    problemId={problem.id}
-                    initialVoteCount={problem.voteCount}
-                    initialHasVoted={problem.userHasVoted}
-                    isAuthenticated={isAuthenticated}
-                  />
-                </div>
+                <VoteButton
+                  problemId={problem.id}
+                  initialVoteCount={problem.voteCount}
+                  initialHasVoted={problem.userHasVoted}
+                  isAuthenticated={isAuthenticated}
+                />
               </div>
             </CardHeader>
             <CardContent className="space-y-3 pt-0">
@@ -118,12 +105,20 @@ export function ProblemsList({
                 )}
               </div>
               {hasFeaturedSolution && problem.featuredSolution && (
-                <div
-                  className="space-y-2"
+                <button
+                  type="button"
+                  className="w-full space-y-2 text-left"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                   }}
+                  onKeyDown={(e) => {
+                    // Allow keyboard interaction for child links
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.stopPropagation();
+                    }
+                  }}
+                  tabIndex={-1}
                 >
                   <div className="flex items-center gap-2">
                     <Badge
@@ -187,7 +182,7 @@ export function ProblemsList({
                       </CardContent>
                     </Card>
                   </Link>
-                </div>
+                </button>
               )}
             </CardContent>
           </Card>

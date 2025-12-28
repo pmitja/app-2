@@ -12,7 +12,7 @@ interface SponsorRailProps {
   maxSponsors?: number;
 }
 
-export function SponsorRail({ placement, maxSponsors = 3 }: SponsorRailProps) {
+export function SponsorRail({ placement, maxSponsors = 6 }: SponsorRailProps) {
   const { sponsors, isLoading } = useSponsors();
 
   if (isLoading) {

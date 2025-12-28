@@ -6,13 +6,26 @@ import { categories, db, developerStatuses, problemComments, problems, problemSo
 import { slugifyTitle } from "./lib/utils";
 
 const DEFAULT_CATEGORIES = [
-  { name: "Performance", emoji: "⚡", slug: "performance" },
-  { name: "UI/UX", emoji: "🎨", slug: "ui-ux" },
-  { name: "Database", emoji: "🗄️", slug: "database" },
-  { name: "Security", emoji: "🔒", slug: "security" },
-  { name: "DevOps", emoji: "🚀", slug: "devops" },
-  { name: "Testing", emoji: "🧪", slug: "testing" },
+  { name: "Artificial Intelligence", emoji: "🤖", slug: "artificial-intelligence" },
+  { name: "SaaS", emoji: "☁️", slug: "saas" },
+  { name: "Developer Tools", emoji: "⚙️", slug: "developer-tools" },
+  { name: "Fintech", emoji: "💰", slug: "fintech" },
+  { name: "Productivity", emoji: "✅", slug: "productivity" },
+  { name: "Marketing", emoji: "📣", slug: "marketing" },
+  { name: "E-commerce", emoji: "🛒", slug: "ecommerce" },
+  { name: "Design Tools", emoji: "🎨", slug: "design-tools" },
+  { name: "No-Code", emoji: "🔧", slug: "no-code" },
   { name: "Analytics", emoji: "📊", slug: "analytics" },
+  { name: "Education", emoji: "🎓", slug: "education" },
+  { name: "Health & Fitness", emoji: "💪", slug: "health-fitness" },
+  { name: "Social Media", emoji: "📱", slug: "social-media" },
+  { name: "Content Creation", emoji: "📝", slug: "content-creation" },
+  { name: "Sales", emoji: "💼", slug: "sales" },
+  { name: "Customer Support", emoji: "🎧", slug: "customer-support" },
+  { name: "Recruiting & HR", emoji: "👥", slug: "recruiting-hr" },
+  { name: "Real Estate", emoji: "🏠", slug: "real-estate" },
+  { name: "Travel", emoji: "✈️", slug: "travel" },
+  { name: "Security", emoji: "🔒", slug: "security" },
 ];
 const FREQUENCIES = ["Daily", "Weekly", "Monthly", "Rarely"];
 const PAIN_LEVELS = [1, 2, 3, 4, 5];

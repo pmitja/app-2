@@ -1,15 +1,21 @@
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Montserrat, Playfair_Display, Source_Code_Pro } from "next/font/google";
 
-const fontSans = Inter({
+const fontSans = Montserrat({
   subsets: ["latin"],
   variable: "--font-sans",
   fallback: ["system-ui", "arial"],
 });
 
-const fontMono = JetBrains_Mono({
+const fontSerif = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-mono",
-  fallback: ["system-ui", "arial"],
+  variable: "--font-serif",
+  fallback: ["Georgia", "serif"],
 });
 
-export const fonts = [fontSans.variable, fontMono.variable];
+const fontMono = Source_Code_Pro({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  fallback: ["Courier New", "monospace"],
+});
+
+export const fonts = [fontSans.variable, fontSerif.variable, fontMono.variable];

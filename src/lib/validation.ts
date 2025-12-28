@@ -99,21 +99,10 @@ export function checkPasswordStrength(password: string): {
 // Problem validation schemas
 export const frequencySchema = z.enum(["Daily", "Weekly", "Monthly", "Rarely"]);
 
-// Category can be either an existing ID or a new category with name and emoji
-export const categoryInputSchema = z.union([
-  z.object({
-    type: z.literal("existing"),
-    categoryId: z.string().min(1, "Please select a category"),
-  }),
-  z.object({
-    type: z.literal("new"),
-    name: z
-      .string()
-      .min(2, "Category name must be at least 2 characters")
-      .max(50, "Category name must be less than 50 characters"),
-    emoji: z.string().min(1, "Please select an emoji"),
-  }),
-]);
+// Category must be an existing category ID
+export const categoryInputSchema = z.object({
+  categoryId: z.string().min(1, "Please select a category"),
+});
 
 export const createProblemSchema = z.object({
   title: z
@@ -166,6 +155,7 @@ export const sponsorSlotSchema = z.object({
     .max(20, "CTA text must be less than 20 characters"),
   ctaUrl: z.string().url("Please enter a valid URL"),
   imageUrl: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+  backgroundImageUrl: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   month: z.string().regex(/^\d{4}-\d{2}$/, "Month must be in YYYY-MM format"),
 });
 

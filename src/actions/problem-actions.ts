@@ -9,10 +9,6 @@ import { env } from "@/env.mjs";
 import { auth } from "@/lib/auth";
 import { getSolutionNotificationEmail } from "@/lib/email-templates";
 import {
-    createCategory,
-    searchSimilarCategories,
-} from "@/lib/queries";
-import {
     categories,
     db,
     developerStatuses,
@@ -31,16 +27,6 @@ import {
 
 const resend = new Resend(env.RESEND_API_KEY);
 
-export async function getSimilarCategories(name: string) {
-  try {
-    const similarCategories = await searchSimilarCategories(name);
-    return { success: true, categories: similarCategories };
-  } catch (error) {
-    console.error("Error searching categories:", error);
-    return { error: "Failed to search categories" };
-  }
-}
-
 export async function createProblem(data: unknown) {
   try {
     // Check authentication
@@ -52,29 +38,14 @@ export async function createProblem(data: unknown) {
     // Validate input
     const validatedData = createProblemSchema.parse(data);
 
-    // Determine categoryId
-    let categoryId: string;
-    
-    if (validatedData.category.type === "existing") {
-      categoryId = validatedData.category.categoryId;
-    } else {
-      // Check for similar categories
-      const similarCategories = await searchSimilarCategories(validatedData.category.name);
-      
-      if (similarCategories.length > 0) {
-        // Return suggestion to use existing category
-        return {
-          error: `A similar category "${similarCategories[0].name}" already exists. Please use it instead.`,
-          suggestion: similarCategories[0],
-        };
-      }
-      
-      // Create new category
-      const newCategory = await createCategory(
-        validatedData.category.name,
-        validatedData.category.emoji
-      );
-      categoryId = newCategory.id;
+    // Verify the category exists
+    const categoryId = validatedData.category.categoryId;
+    const categoryExists = await db.query.categories.findFirst({
+      where: eq(categories.id, categoryId),
+    });
+
+    if (!categoryExists) {
+      return { error: "Selected category does not exist. Please select a valid category." };
     }
 
     // Generate unique slug from title

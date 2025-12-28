@@ -10,12 +10,13 @@ import { SponsorCard } from "@/components/sponsors/sponsor-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import type { Sponsor } from "@/lib/sponsors";
 
 export default function DevSponsorsPage() {
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [sponsors, setSponsors] = useState<any[]>([]);
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
 
   const handleSeed = () => {
     startTransition(async () => {
