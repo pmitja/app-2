@@ -11,7 +11,11 @@ import {
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
-const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
+// Initialize database connection
+// Use a placeholder during build if DATABASE_URL is not available
+// This prevents neon() from throwing an error during the build phase
+const databaseUrl = process.env.DATABASE_URL || "https://placeholder.neon.tech";
+const sql = neon(databaseUrl);
 
 export const users = pgTable("user", {
   id: text("id")
