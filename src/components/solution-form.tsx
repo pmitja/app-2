@@ -27,8 +27,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  createSolutionSchema,
   type CreateSolutionFormData,
+  createSolutionSchema,
 } from "@/lib/validation";
 
 interface SolutionFormProps {

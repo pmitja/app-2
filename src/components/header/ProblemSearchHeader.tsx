@@ -20,15 +20,11 @@ import { cn } from "@/lib/utils";
 interface ProblemSearchHeaderProps {
   categories: Category[];
   initialQuery?: string;
-  initialSort?: string;
-  selectedCategory?: string | null;
 }
 
 export function ProblemSearchHeader({
   categories,
   initialQuery = "",
-  initialSort = "votes",
-  selectedCategory,
 }: ProblemSearchHeaderProps) {
   const router = useRouter();
   const searchParams = useSearchParams();

@@ -1,10 +1,10 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Sponsor {
-  id: number;
+  id: string;
   title: string;
   description: string;
   ctaText: string;
@@ -75,4 +75,3 @@ export function SponsorShowcaseCard({ sponsor }: SponsorShowcaseCardProps) {
     </a>
   );
 }
-

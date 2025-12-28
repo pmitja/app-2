@@ -4,6 +4,7 @@ import {
   getActiveSponsors,
   getSponsorAvailability,
 } from "@/actions/sponsor-actions";
+import { SponsorShowcaseCard } from "@/components/sponsors/sponsor-showcase-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { SponsorShowcaseCard } from "@/components/sponsors/sponsor-showcase-card";
 
 export default async function SponsorsPage() {
   const [availabilityResult, sponsorsResult] = await Promise.all([

@@ -1,7 +1,7 @@
 "use client";
 
-import type { Session } from "next-auth";
 import Link from "next/link";
+import type { Session } from "next-auth";
 import { useEffect, useState } from "react";
 
 import { AuthControls } from "@/components/auth-controls";

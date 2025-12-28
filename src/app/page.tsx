@@ -29,12 +29,7 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
     <>
       <div className="space-y-8">
         {/* Search Header with Categories and Sort */}
-        <ProblemSearchHeader
-          categories={categories}
-          initialQuery={params.q}
-          initialSort={params.sort}
-          selectedCategory={params.category}
-        />
+        <ProblemSearchHeader categories={categories} initialQuery={params.q} />
 
         {/* Problems List with Infinite Scroll */}
         <ProblemsListInfinite

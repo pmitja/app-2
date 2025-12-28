@@ -27,6 +27,16 @@ export async function POST(request: NextRequest) {
   try {
     // Check API key authentication
     const apiKey = request.headers.get("X-API-Key");
+    
+    if (!env.CLEANUP_API_KEY) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Service unavailable: CLEANUP_API_KEY not configured",
+        },
+        { status: 503 }
+      );
+    }
 
     if (!apiKey || apiKey !== env.CLEANUP_API_KEY) {
       return NextResponse.json(

@@ -15,7 +15,7 @@ export const env = createEnv({
     STRIPE_SUBSCRIPTION_PRICE_ID: z.string().min(1),
     RESEND_API_KEY: z.string().min(1),
     EMAIL_FROM: z.string().email(),
-    CLEANUP_API_KEY: z.string().min(1),
+    CLEANUP_API_KEY: z.string().min(1).optional(),
   },
   client: {
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1),
