@@ -30,6 +30,15 @@ function getCurrentMonth(): string {
   return `${year}-${month}`;
 }
 
+// Get previous month in YYYY-MM format
+function getPreviousMonth(): string {
+  const now = new Date();
+  const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const year = prevMonth.getFullYear();
+  const month = String(prevMonth.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+
 // Create Stripe checkout session for sponsor slot
 export async function createSponsorCheckout(formData: unknown) {
   try {
@@ -171,26 +180,31 @@ export async function getSponsorAvailability() {
 }
 
 // Get active sponsors for a specific month (used by AdRail / legacy UI)
+// Automatically renews sponsors from previous month to current month if needed
 export async function getActiveSponsors(month?: string) {
   try {
-    const targetMonth = month || getCurrentMonth();
+    const currentMonth = getCurrentMonth();
+    const previousMonth = getPreviousMonth();
+    const targetMonth = month || currentMonth;
 
-    const activeSponsors = await db
-      .select({
-        id: sponsorSlots.id,
-        title: sponsorSlots.title,
-        description: sponsorSlots.description,
-        ctaText: sponsorSlots.ctaText,
-        ctaUrl: sponsorSlots.ctaUrl,
-        imageUrl: sponsorSlots.imageUrl,
-        backgroundImageUrl: sponsorSlots.backgroundImageUrl,
-        month: sponsorSlots.month,
-        status: sponsorSlots.status,
-        logo: sponsorSlots.logo,
-        variant: sponsorSlots.variant,
-        placements: sponsorSlots.placements,
-        priority: sponsorSlots.priority,
-      })
+    const selectFields = {
+      id: sponsorSlots.id,
+      title: sponsorSlots.title,
+      description: sponsorSlots.description,
+      ctaText: sponsorSlots.ctaText,
+      ctaUrl: sponsorSlots.ctaUrl,
+      imageUrl: sponsorSlots.imageUrl,
+      backgroundImageUrl: sponsorSlots.backgroundImageUrl,
+      month: sponsorSlots.month,
+      status: sponsorSlots.status,
+      logo: sponsorSlots.logo,
+      variant: sponsorSlots.variant,
+      placements: sponsorSlots.placements,
+      priority: sponsorSlots.priority,
+    };
+
+    let activeSponsors = await db
+      .select(selectFields)
       .from(sponsorSlots)
       .where(
         and(
@@ -198,6 +212,31 @@ export async function getActiveSponsors(month?: string) {
           eq(sponsorSlots.status, "active"),
         ),
       );
+
+    // If no explicit month was provided and no sponsors found, auto-renew from previous month
+    if (!month && activeSponsors.length === 0) {
+      // Update previous month's active sponsors to current month
+      await db
+        .update(sponsorSlots)
+        .set({ month: currentMonth })
+        .where(
+          and(
+            eq(sponsorSlots.month, previousMonth),
+            eq(sponsorSlots.status, "active"),
+          ),
+        );
+
+      // Fetch the updated sponsors
+      activeSponsors = await db
+        .select(selectFields)
+        .from(sponsorSlots)
+        .where(
+          and(
+            eq(sponsorSlots.month, currentMonth),
+            eq(sponsorSlots.status, "active"),
+          ),
+        );
+    }
 
     return {
       success: true,
@@ -214,21 +253,53 @@ export async function getActiveSponsors(month?: string) {
 }
 
 // Get sponsors mapped to layout model (used by global Sponsors UI)
+// Automatically renews sponsors from previous month to current month if needed
 export async function getSponsorsForLayout() {
   try {
-    const targetMonth = getCurrentMonth();
+    const currentMonth = getCurrentMonth();
+    const previousMonth = getPreviousMonth();
 
-    const rows = await db
+    // First, try to get sponsors for the current month
+    let rows = await db
       .select()
       .from(sponsorSlots)
       .where(
         and(
-          eq(sponsorSlots.month, targetMonth),
+          eq(sponsorSlots.month, currentMonth),
           eq(sponsorSlots.status, "active"),
         ),
       );
 
-    console.log("[getSponsorsForLayout] Target month:", targetMonth);
+    // If no sponsors for current month, auto-renew previous month's sponsors
+    if (rows.length === 0) {
+      console.log("[getSponsorsForLayout] No sponsors for current month, auto-renewing from previous month");
+      
+      // Update previous month's active sponsors to current month
+      await db
+        .update(sponsorSlots)
+        .set({ month: currentMonth })
+        .where(
+          and(
+            eq(sponsorSlots.month, previousMonth),
+            eq(sponsorSlots.status, "active"),
+          ),
+        );
+
+      // Now fetch the updated sponsors
+      rows = await db
+        .select()
+        .from(sponsorSlots)
+        .where(
+          and(
+            eq(sponsorSlots.month, currentMonth),
+            eq(sponsorSlots.status, "active"),
+          ),
+        );
+      
+      console.log("[getSponsorsForLayout] Auto-renewed", rows.length, "sponsors to", currentMonth);
+    }
+
+    console.log("[getSponsorsForLayout] Target month:", currentMonth);
     console.log("[getSponsorsForLayout] Raw rows from DB:", rows.length);
     console.log(
       "[getSponsorsForLayout] backgroundImageUrl values:",

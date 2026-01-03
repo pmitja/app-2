@@ -7,7 +7,7 @@ import { categories, db, problems } from "@/lib/schema";
  * Middleware to handle redirects from old UUID-based problem URLs to new slug-based URLs
  * Example: /problems/{uuid} -> /problems/{categorySlug}/{problemSlug}
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check if this is a problem detail page with potential UUID

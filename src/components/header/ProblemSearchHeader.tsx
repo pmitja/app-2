@@ -37,7 +37,11 @@ export function ProblemSearchHeader({
 
   // Update URL when debounced search changes
   useEffect(() => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams.toString());
+    const currentQ = params.get("q") || "";
+
+    // Only navigate if the search query actually changed
+    if (debouncedSearch === currentQ) return;
 
     if (debouncedSearch) {
       params.set("q", debouncedSearch);
@@ -48,7 +52,8 @@ export function ProblemSearchHeader({
     startTransition(() => {
       router.push(`/?${params.toString()}`);
     });
-  }, [debouncedSearch, router, searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
 
   // Scroll detection for sticky behavior
   useEffect(() => {
