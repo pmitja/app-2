@@ -14,6 +14,7 @@ import {
     developerStatuses,
     problemComments,
     problemFollows,
+    problemLikes,
     problems,
     problemVotes,
     users,
@@ -141,6 +142,53 @@ export async function toggleVote(problemId: string) {
   } catch (error) {
     console.error("Error toggling vote:", error);
     return { error: "Failed to toggle vote" };
+  }
+}
+
+export async function toggleLike(problemId: string) {
+  try {
+    // Check authentication
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { error: "You must be logged in to like" };
+    }
+
+    // Check if user already liked
+    const existingLike = await db.query.problemLikes.findFirst({
+      where: and(
+        eq(problemLikes.problemId, problemId),
+        eq(problemLikes.userId, session.user.id),
+      ),
+    });
+
+    if (existingLike) {
+      // Remove like
+      await db
+        .delete(problemLikes)
+        .where(
+          and(
+            eq(problemLikes.problemId, problemId),
+            eq(problemLikes.userId, session.user.id),
+          ),
+        );
+      
+      revalidatePath(`/problems/${problemId}`);
+      revalidatePath("/");
+      return { success: true, liked: false };
+    } else {
+      // Add like
+      await db.insert(problemLikes).values({
+        problemId,
+        userId: session.user.id,
+      });
+      
+      revalidatePath(`/problems/${problemId}`);
+      revalidatePath("/");
+      return { success: true, liked: true };
+    }
+  } catch (error) {
+    console.error("Error toggling like:", error);
+    return { error: "Failed to toggle like" };
   }
 }
 

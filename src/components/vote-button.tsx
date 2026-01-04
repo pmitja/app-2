@@ -1,16 +1,19 @@
 "use client";
 
+import { ArrowBigUp, Upload } from "lucide-react";
 import { useOptimistic, useTransition } from "react";
 import { toast } from "sonner";
 
 import { toggleVote } from "@/actions/problem-actions";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface VoteButtonProps {
   problemId: string;
   initialVoteCount: number;
   initialHasVoted: boolean;
   isAuthenticated: boolean;
+  variant?: "compact" | "default" | "sidebar";
 }
 
 export function VoteButton({
@@ -18,6 +21,7 @@ export function VoteButton({
   initialVoteCount,
   initialHasVoted,
   isAuthenticated,
+  variant = "default",
 }: VoteButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [optimisticState, setOptimisticState] = useOptimistic(
@@ -48,6 +52,52 @@ export function VoteButton({
       }
     });
   };
+
+  if (variant === "sidebar") {
+    return (
+      <button
+        onClick={handleVote}
+        disabled={isPending}
+        className={cn(
+          "flex w-16 flex-col items-center justify-center gap-2 self-stretch rounded-r-lg border-l bg-card/50 transition-colors",
+          optimisticState.hasVoted
+            ? "text-primary"
+            : "text-muted-foreground hover:text-foreground",
+          isPending && "opacity-50 cursor-not-allowed"
+        )}
+      >
+        <ArrowBigUp
+          size={32}
+          className={cn(
+            "transition-all",
+            optimisticState.hasVoted && "fill-primary scale-110"
+          )}
+        />
+        <span className="text-lg font-bold">{optimisticState.count}</span>
+      </button>
+    );
+  }
+
+  if (variant === "compact") {
+    return (
+      <Button
+        onClick={handleVote}
+        variant="ghost"
+        size="sm"
+        className={cn(
+          "gap-1.5 px-0",
+          optimisticState.hasVoted
+            ? "text-primary"
+            : "text-muted-foreground hover:text-foreground"
+        )}
+        disabled={isPending}
+      >
+        <Upload size={16} />
+        <span className="font-medium">{optimisticState.count}</span>
+        Upvote
+      </Button>
+    );
+  }
 
   return (
     <Button

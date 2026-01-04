@@ -259,6 +259,27 @@ export const problemSolutions = pgTable("problem_solution", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+export const problemLikes = pgTable(
+  "problem_like",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    problemId: text("problemId")
+      .notNull()
+      .references(() => problems.id, { onDelete: "cascade" }),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [
+    {
+      uniqueLike: unique().on(t.problemId, t.userId),
+    },
+  ]
+);
+
 // Initialize drizzle with schema for query mode
 export const db = drizzle({ 
   client: sql, 
@@ -276,5 +297,6 @@ export const db = drizzle({
     developerStatuses,
     sponsorSlots,
     problemSolutions,
+    problemLikes,
   }
 });

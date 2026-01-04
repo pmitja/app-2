@@ -6,6 +6,7 @@ import {
     developerStatuses,
     problemComments,
     problemFollows,
+    problemLikes,
     problems,
     problemSolutions,
     problemVotes,
@@ -46,6 +47,9 @@ export interface ProblemWithVotes {
   createdAt: Date;
   voteCount: number;
   userHasVoted: boolean;
+  likeCount: number;
+  userHasLiked: boolean;
+  commentCount: number;
   author: {
     name: string | null;
     email: string | null;
@@ -112,6 +116,26 @@ export async function getProblems(
     .groupBy(problemSolutions.problemId)
     .as("solution_counts");
 
+  // Create a subquery to count likes for each problem
+  const likeCountSubquery = db
+    .select({
+      problemId: problemLikes.problemId,
+      count: count().as("like_count"),
+    })
+    .from(problemLikes)
+    .groupBy(problemLikes.problemId)
+    .as("like_counts");
+
+  // Create a subquery to count comments for each problem
+  const commentCountSubquery = db
+    .select({
+      problemId: problemComments.problemId,
+      count: count().as("comment_count"),
+    })
+    .from(problemComments)
+    .groupBy(problemComments.problemId)
+    .as("comment_counts");
+
   // Main query with joins
   const query = db
     .select({
@@ -130,11 +154,20 @@ export async function getProblems(
       createdAt: problems.createdAt,
       voteCount: sql<number>`COALESCE(${voteCountSubquery.count}, 0)`,
       solutionCount: sql<number>`COALESCE(${solutionCountSubquery.count}, 0)`,
+      likeCount: sql<number>`COALESCE(${likeCountSubquery.count}, 0)`,
+      commentCount: sql<number>`COALESCE(${commentCountSubquery.count}, 0)`,
       userHasVoted: userId
         ? sql<boolean>`EXISTS (
             SELECT 1 FROM ${problemVotes}
             WHERE ${problemVotes.problemId} = ${problems.id}
             AND ${problemVotes.userId} = ${userId}
+          )`
+        : sql<boolean>`false`,
+      userHasLiked: userId
+        ? sql<boolean>`EXISTS (
+            SELECT 1 FROM ${problemLikes}
+            WHERE ${problemLikes.problemId} = ${problems.id}
+            AND ${problemLikes.userId} = ${userId}
           )`
         : sql<boolean>`false`,
       authorName: users.name,
@@ -144,6 +177,8 @@ export async function getProblems(
     .from(problems)
     .leftJoin(voteCountSubquery, eq(problems.id, voteCountSubquery.problemId))
     .leftJoin(solutionCountSubquery, eq(problems.id, solutionCountSubquery.problemId))
+    .leftJoin(likeCountSubquery, eq(problems.id, likeCountSubquery.problemId))
+    .leftJoin(commentCountSubquery, eq(problems.id, commentCountSubquery.problemId))
     .leftJoin(users, eq(problems.userId, users.id))
     .leftJoin(categories, eq(problems.categoryId, categories.id));
 
@@ -247,6 +282,9 @@ export async function getProblems(
     createdAt: row.createdAt,
     voteCount: Number(row.voteCount) || 0,
     userHasVoted: Boolean(row.userHasVoted),
+    likeCount: Number(row.likeCount) || 0,
+    userHasLiked: Boolean(row.userHasLiked),
+    commentCount: Number(row.commentCount) || 0,
     solutionCount: Number(row.solutionCount) || 0,
     featuredSolution: featuredSolutionsMap.get(row.id) || null,
     author: {
