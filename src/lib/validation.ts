@@ -174,6 +174,11 @@ export const createSolutionSchema = z.object({
   promoteNow: z.boolean().default(false),
 });
 
+// Update name schema
+export const updateNameSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+});
+
 // Type exports
 export type SignInFormData = z.infer<typeof signInSchema>;
 export type SignUpFormData = z.infer<typeof signUpSchema>;
@@ -187,3 +192,4 @@ export type SetDeveloperStatusFormData = z.infer<
 >;
 export type SponsorSlotFormData = z.infer<typeof sponsorSlotSchema>;
 export type CreateSolutionFormData = z.infer<typeof createSolutionSchema>;
+export type UpdateNameFormData = z.infer<typeof updateNameSchema>;

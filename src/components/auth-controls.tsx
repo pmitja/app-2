@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 import { AuthModal } from "@/components/auth-modal";
@@ -42,7 +42,7 @@ export const AuthControls = ({ session }: AuthControlsProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
           {user?.image ? (
             <Image
               className="overflow-hidden rounded-full"

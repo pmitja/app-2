@@ -134,7 +134,7 @@ export function ProblemSearchHeader({
         "sticky top-0 z-10 transition-all duration-300",
         isScrolled
           ? "bg-background/80 border-border border-b py-3 backdrop-blur-sm"
-          : "bg-transparent py-8",
+          : "w-full bg-transparent py-8",
       )}
     >
       <div className="space-y-5">
@@ -146,8 +146,8 @@ export function ProblemSearchHeader({
               "border-input bg-background relative flex items-center rounded-full border shadow-sm transition-all duration-200",
               "focus-within:ring-ring/50 focus-within:ring-2",
               isScrolled
-                ? "px-4 py-2 lg:max-w-md"
-                : "px-6 py-3 lg:max-w-2xl lg:flex-1",
+                ? "w-full px-4 py-2 lg:max-w-full"
+                : "w-full px-6 py-3 lg:max-w-full lg:flex-1",
             )}
           >
             <Icons.search className="text-muted-foreground mr-3 size-5" />

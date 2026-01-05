@@ -66,7 +66,7 @@ export function SponsorRail({ placement, maxSponsors = 6 }: SponsorRailProps) {
     }));
   }, [sponsors, placement, isLoading]);
 
-  // Initialize card sponsors randomly - always show exactly 6 cards
+  // Initialize card sponsors - show only as many cards as we have unique sponsors (up to maxSponsors)
   // Each card gets both a front and back sponsor pre-assigned
   useEffect(() => {
     if (sponsorPool.length === 0) return;
@@ -74,9 +74,10 @@ export function SponsorRail({ placement, maxSponsors = 6 }: SponsorRailProps) {
     const initialCards: CardData[] = [];
     const usedFrontIds: string[] = [];
 
-    // Assign front sponsors first
-    for (let i = 0; i < maxSponsors; i++) {
-      const frontSponsor = sponsorPool[i % sponsorPool.length];
+    // Only show as many cards as we have unique sponsors (no duplicates)
+    const cardCount = Math.min(maxSponsors, sponsorPool.length);
+    for (let i = 0; i < cardCount; i++) {
+      const frontSponsor = sponsorPool[i];
       usedFrontIds.push(frontSponsor.sponsor.id);
       initialCards.push({
         frontSponsor,

@@ -1,20 +1,28 @@
 import { redirect } from "next/navigation";
 
 import { DeveloperRoleToggle } from "@/components/developer-role-toggle";
+import { ProfileNameForm } from "@/components/profile-name-form";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { auth } from "@/lib/auth";
+import { getUserById } from "@/lib/queries";
 
 export default async function SettingsPage() {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
+    redirect("/");
+  }
+
+  const user = await getUserById(session.user.id);
+
+  if (!user) {
     redirect("/");
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Account Settings</h1>
         <p className="text-muted-foreground mt-2">
@@ -30,17 +38,12 @@ export default async function SettingsPage() {
           <CardTitle>Profile Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Name</p>
-            <p className="text-muted-foreground text-sm">
-              {session.user.name || "Not set"}
-            </p>
-          </div>
+          <ProfileNameForm currentName={user.name} />
 
           <div className="space-y-2">
             <p className="text-sm font-medium">Email</p>
             <p className="text-muted-foreground text-sm">
-              {session.user.email || "Not set"}
+              {user.email || "Not set"}
             </p>
           </div>
 
@@ -48,11 +51,9 @@ export default async function SettingsPage() {
             <p className="text-sm font-medium">Current Role</p>
             <div>
               <Badge
-                variant={
-                  session.user.role === "developer" ? "default" : "secondary"
-                }
+                variant={user.role === "developer" ? "default" : "secondary"}
               >
-                {session.user.role === "developer" ? "Developer" : "User"}
+                {user.role === "developer" ? "Developer" : "User"}
               </Badge>
             </div>
           </div>
@@ -60,7 +61,7 @@ export default async function SettingsPage() {
       </Card>
 
       {/* Developer Role Toggle */}
-      <DeveloperRoleToggle currentRole={session.user.role} />
+      <DeveloperRoleToggle currentRole={user.role} />
     </div>
   );
 }

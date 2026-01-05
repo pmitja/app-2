@@ -13,6 +13,7 @@ import {
     resetPasswordSchema,
     resetRequestSchema,
     signUpSchema,
+    updateNameSchema,
 } from "@/lib/validation";
 
 const resend = new Resend(env.RESEND_API_KEY);
@@ -265,5 +266,32 @@ export async function toggleDeveloperRole() {
   } catch (error) {
     console.error("Error toggling developer role:", error);
     return { error: "Failed to update role" };
+  }
+}
+
+export async function updateUserName(data: { name: string }) {
+  try {
+    // Check authentication
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { error: "You must be logged in to update your name" };
+    }
+
+    // Validate input
+    const validatedData = updateNameSchema.parse(data);
+
+    // Update user name
+    await db
+      .update(users)
+      .set({ name: validatedData.name })
+      .where(eq(users.id, session.user.id));
+
+    return { success: true, name: validatedData.name };
+  } catch (error) {
+    console.error("Error updating user name:", error);
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+    return { error: "Failed to update name" };
   }
 }

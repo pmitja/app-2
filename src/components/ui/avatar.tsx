@@ -13,7 +13,7 @@ function Avatar({
     <AvatarPrimitive.Root
       data-slot="avatar"
       className={cn(
-        "relative flex size-8 shrink-0 overflow-hidden rounded-full",
+        "relative flex h-8 w-8 shrink-0 overflow-hidden rounded-full",
         className
       )}
       {...props}
@@ -28,7 +28,10 @@ function AvatarImage({
   return (
     <AvatarPrimitive.Image
       data-slot="avatar-image"
-      className={cn("aspect-square size-full", className)}
+      className={cn(
+        "h-full w-full object-cover",
+        className
+      )}
       {...props}
     />
   )
@@ -50,4 +53,4 @@ function AvatarFallback({
   )
 }
 
-export { Avatar, AvatarFallback,AvatarImage }
+export { Avatar, AvatarFallback, AvatarImage }

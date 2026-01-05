@@ -571,6 +571,12 @@ export interface ProblemSolution {
   isOwner: boolean;
 }
 
+export async function getUserById(userId: string) {
+  return db.query.users.findFirst({
+    where: eq(users.id, userId),
+  });
+}
+
 export async function getProblemSolutions(
   problemId: string,
   userId?: string,
