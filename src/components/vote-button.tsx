@@ -59,18 +59,18 @@ export function VoteButton({
         onClick={handleVote}
         disabled={isPending}
         className={cn(
-          "flex w-16 flex-col items-center justify-center gap-2 self-stretch rounded-r-lg border-l bg-card/50 transition-colors",
+          "flex w-16 flex-col items-center justify-center gap-2 self-stretch rounded-r-lg border-l bg-black/5 transition-colors dark:bg-white/10",
           optimisticState.hasVoted
             ? "text-primary"
             : "text-muted-foreground hover:text-foreground",
-          isPending && "opacity-50 cursor-not-allowed"
+          isPending && "cursor-not-allowed opacity-50",
         )}
       >
         <ArrowBigUp
           size={32}
           className={cn(
             "transition-all",
-            optimisticState.hasVoted && "fill-primary scale-110"
+            optimisticState.hasVoted && "fill-primary scale-110",
           )}
         />
         <span className="text-lg font-bold">{optimisticState.count}</span>
@@ -88,7 +88,7 @@ export function VoteButton({
           "gap-1.5 px-0",
           optimisticState.hasVoted
             ? "text-primary"
-            : "text-muted-foreground hover:text-foreground"
+            : "text-muted-foreground hover:text-foreground",
         )}
         disabled={isPending}
       >

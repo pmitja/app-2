@@ -1,7 +1,7 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
-import { MessageCircle, MoreVertical, Share2 } from "lucide-react";
+import { MessageCircle, Share2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -109,20 +109,6 @@ export function ProblemsList({
                       initialHasLiked={problem.userHasLiked}
                       isAuthenticated={isAuthenticated}
                     />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                    >
-                      <MoreVertical
-                        size={20}
-                        className="text-muted-foreground"
-                      />
-                    </Button>
                   </div>
                 </div>
 
