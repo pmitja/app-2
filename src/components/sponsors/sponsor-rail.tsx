@@ -123,72 +123,80 @@ export function SponsorRail({ placement, maxSponsors = 6 }: SponsorRailProps) {
         cardsToFlip.add(cardIndices[i]);
       }
 
-      // Update flipped state immediately to trigger animation
-      setFlippedCards((prev) => {
-        const newSet = new Set(prev);
-        cardsToFlip.forEach((idx) => {
-          if (newSet.has(idx)) {
-            newSet.delete(idx);
-          } else {
-            newSet.add(idx);
-          }
-        });
-        return newSet;
+      // Calculate next state locally to use in timeout
+      const nextFlippedState = new Set(flippedCards);
+      cardsToFlip.forEach((idx) => {
+        if (nextFlippedState.has(idx)) {
+          nextFlippedState.delete(idx);
+        } else {
+          nextFlippedState.add(idx);
+        }
       });
 
-      // After flip animation completes (700ms), swap front/back and assign new back sponsors
+      // Update flipped state immediately to trigger animation
+      setFlippedCards(nextFlippedState);
+
+      // After flip animation completes (700ms), update the hidden side with a new sponsor
       setTimeout(() => {
         setCardSponsors((prev) => {
-          // Calculate which IDs will be visible after the swap (for exclusion)
-          const newCards = prev.map((cardData, idx) => {
+          // Calculate visible IDs based on the NEW flipped state (what the user sees now)
+          const visibleIds = prev
+            .map((card, idx) => {
+              const isFlipped = nextFlippedState.has(idx);
+              // If flipped (showing back), use back sponsor ID.
+              // If back is null, SponsorCardPremium falls back to front, so use front ID.
+              if (isFlipped) {
+                return (
+                  card.backSponsor?.sponsor.id || card.frontSponsor.sponsor.id
+                );
+              }
+              return card.frontSponsor.sponsor.id;
+            })
+            .filter(Boolean) as string[];
+
+          return prev.map((card, idx) => {
             if (!cardsToFlip.has(idx)) {
-              // Non-flipped cards stay exactly the same
-              return cardData;
+              return card;
             }
 
-            // For flipped cards: swap front and back, then assign a new back
-            const newFront = cardData.backSponsor || cardData.frontSponsor;
-            return {
-              frontSponsor: newFront,
-              backSponsor: cardData.frontSponsor, // Old front becomes temporary back
-            };
-          });
+            const isNowFlipped = nextFlippedState.has(idx);
+            const visibleSponsorId = isNowFlipped
+              ? card.backSponsor?.sponsor.id || card.frontSponsor.sponsor.id
+              : card.frontSponsor.sponsor.id;
 
-          // Now assign new back sponsors for the flipped cards only
-          // Collect all front sponsor IDs that will be displayed
-          const allDisplayedIds = newCards.map((c) => c.frontSponsor.sponsor.id);
+            // We want a new sponsor for the HIDDEN side.
+            // Exclude all currently visible IDs to avoid duplicates.
+            const excludeIds = [...visibleIds];
 
-          return newCards.map((cardData, idx) => {
-            if (!cardsToFlip.has(idx)) {
-              return cardData;
+            let newSponsor = getRandomSponsor(sponsorPool, excludeIds);
+
+            // Fallback: if no unique sponsor available, find any different from visible
+            if (!newSponsor && sponsorPool.length > 1) {
+              newSponsor =
+                sponsorPool.find((s) => s.sponsor.id !== visibleSponsorId) ||
+                null;
             }
 
-            // Get a new back sponsor that's different from this card's front and other displayed fronts
-            const excludeIds = [cardData.frontSponsor.sponsor.id, ...allDisplayedIds];
-            const newBackSponsor = getRandomSponsor(sponsorPool, excludeIds);
-
-            // If no unique sponsor available, find any different from this card's front
-            if (!newBackSponsor && sponsorPool.length > 1) {
-              const alternative = sponsorPool.find(
-                (s) => s.sponsor.id !== cardData.frontSponsor.sponsor.id,
-              );
+            if (isNowFlipped) {
+              // We are currently showing the BACK. Update the FRONT (Hidden).
               return {
-                ...cardData,
-                backSponsor: alternative || null,
+                ...card,
+                frontSponsor: newSponsor || card.frontSponsor, // Keep old if no new one found (shouldn't happen with fallback)
+              };
+            } else {
+              // We are currently showing the FRONT. Update the BACK (Hidden).
+              return {
+                ...card,
+                backSponsor: newSponsor, // Can be null
               };
             }
-
-            return {
-              ...cardData,
-              backSponsor: newBackSponsor,
-            };
           });
         });
       }, 700); // Match animation duration
     }, 8000); // Rotate every 8 seconds
 
     return () => clearInterval(interval);
-  }, [sponsorPool, cardSponsors.length]);
+  }, [sponsorPool, cardSponsors.length, flippedCards]);
 
   if (isLoading) {
     return (

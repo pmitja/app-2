@@ -18,7 +18,7 @@ export async function AppShell({ children }: AppShellProps) {
 
       <SponsorsProvider>
         {/* Top carousel - mobile/tablet only, in document flow */}
-        <div className="lg:hidden">
+        <div className="sticky top-0 z-20 lg:hidden">
           <SponsorCarousel placement="MOBILE_CAROUSEL_TOP" direction="ltr" />
         </div>
 

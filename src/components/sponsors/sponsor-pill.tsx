@@ -38,9 +38,14 @@ export function SponsorPill({ sponsor, className }: SponsorPillProps) {
       )}
     >
       {logo ? (
-        <span className="bg-background/70 flex h-6 w-6 items-center justify-center rounded-full text-sm">
-          {logo}
-        </span>
+        <img
+          src={logo}
+          alt={`${name} logo`}
+          className="h-6 w-6 rounded-full object-cover object-center lg:h-12 lg:w-12"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
+        />
       ) : null}
       <div className="flex min-w-0 flex-col">
         <span className="truncate leading-tight font-semibold">{name}</span>

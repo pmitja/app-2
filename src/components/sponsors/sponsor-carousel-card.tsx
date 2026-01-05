@@ -31,22 +31,27 @@ export function SponsorCarouselCard({
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "group flex w-[140px] flex-shrink-0 flex-row items-center gap-2 rounded-xl border-2 p-3 shadow-sm transition-all duration-300",
+        "group flex max-h-[73px] w-[140px] flex-shrink-0 flex-row items-center gap-2 overflow-hidden rounded-xl border-2 p-3 shadow-sm transition-all duration-300",
         variantClasses[variant],
         className,
       )}
     >
       {/* Logo */}
       {logo ? (
-        <span className="bg-background/80 flex h-4 w-4 items-center justify-center rounded-lg text-3xl shadow-sm">
-          {logo}
-        </span>
+        <img
+          src={logo}
+          alt={`${name} logo`}
+          className="h-6 min-w-6 rounded-lg object-cover object-center shadow-sm"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
+        />
       ) : (
-        <div className="bg-background/60 h-4 w-4 rounded-lg" />
+        <div className="bg-background/60 h-6 w-6 rounded-lg" />
       )}
 
       {/* Sponsor name */}
-      <h3 className="text-foreground text-center text-xs leading-tight font-bold">
+      <h3 className="text-foreground line-clamp-2 text-center text-xs leading-tight font-bold">
         {name}
       </h3>
     </Link>

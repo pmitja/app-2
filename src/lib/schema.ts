@@ -253,7 +253,7 @@ export const sponsorSlots = pgTable("sponsor_slot", {
   ctaUrl: text("ctaUrl").notNull(),
   imageUrl: text("imageUrl"), // optional logo/image
   backgroundImageUrl: text("backgroundImageUrl"), // optional background image for premium cards
-  logo: text("logo"), // optional emoji/short text logo
+  logo: text("logo"), // optional logo image URL
   variant: text("variant").notNull().default("blue"),
   placements: text("placements").notNull().default("RAIL_LEFT"),
   priority: integer("priority").notNull().default(0),

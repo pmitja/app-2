@@ -131,7 +131,7 @@ export function ProblemSearchHeader({
   return (
     <div
       className={cn(
-        "sticky top-0 z-10 transition-all duration-300",
+        "sticky top-[90px] z-11 transition-all duration-300 lg:top-0",
         isScrolled
           ? "bg-background/80 border-border border-b py-3 backdrop-blur-sm"
           : "w-full bg-transparent py-8",

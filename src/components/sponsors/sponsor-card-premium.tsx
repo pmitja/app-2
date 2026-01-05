@@ -108,9 +108,17 @@ export function SponsorCardPremium({
         }}
       >
         {/* Front Face */}
-        <CardFace sponsor={frontSponsor} isBack={false} contentRef={frontContentRef} />
+        <CardFace
+          sponsor={frontSponsor}
+          isBack={false}
+          contentRef={frontContentRef}
+        />
         {/* Back Face */}
-        <CardFace sponsor={displayBackSponsor} isBack={true} contentRef={backContentRef} />
+        <CardFace
+          sponsor={displayBackSponsor}
+          isBack={true}
+          contentRef={backContentRef}
+        />
       </div>
     </div>
   );
@@ -174,9 +182,14 @@ function CardFace({ sponsor, isBack, contentRef }: CardFaceProps) {
             Sponsored
           </Badge>
           {logo && (
-            <span className="rounded-lg bg-white/90 px-1.5 py-0.5 text-sm backdrop-blur-sm sm:text-base">
-              {logo}
-            </span>
+            <img
+              src={logo}
+              alt={`${name} logo`}
+              className="h-6 min-w-6 rounded-lg bg-white/90 object-contain object-cover object-center backdrop-blur-sm sm:h-7 sm:w-7 lg:h-12 lg:w-12 lg:p-0"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
+            />
           )}
         </div>
 

@@ -91,30 +91,16 @@ export function getSponsorsByPlacement(
   sponsors: Sponsor[],
   placement: SponsorPlacement,
 ): Sponsor[] {
-  // First, try to get sponsors with the exact placement
-  const exactMatches = sponsors
-    .filter((s) => s.active && s.placement.includes(placement))
-    .sort((a, b) => a.priority - b.priority);
-
-  // If we have exact matches, return them
-  if (exactMatches.length > 0) {
-    return exactMatches;
-  }
-
-  // Fallback: For mobile carousels, use desktop rail sponsors
-  // This ensures mobile users see sponsors even if they're only configured for desktop
-  const fallbackPlacements: Partial<Record<SponsorPlacement, SponsorPlacement[]>> = {
-    MOBILE_CAROUSEL_TOP: ["RAIL_LEFT", "RAIL_RIGHT"],
-    MOBILE_CAROUSEL_BOTTOM: ["RAIL_LEFT", "RAIL_RIGHT"],
-  };
-
-  const fallbacks = fallbackPlacements[placement];
-  if (fallbacks) {
+  // For mobile carousels, always use desktop rail sponsors to ensure consistency
+  // Mobile should show the same sponsors as desktop
+  if (placement === "MOBILE_CAROUSEL_TOP" || placement === "MOBILE_CAROUSEL_BOTTOM") {
     return sponsors
-      .filter((s) => s.active && fallbacks.some((fb) => s.placement.includes(fb)))
+      .filter((s) => s.active && (s.placement.includes("RAIL_LEFT") || s.placement.includes("RAIL_RIGHT")))
       .sort((a, b) => a.priority - b.priority);
   }
 
-  // No matches and no fallback available
-  return [];
+  // For other placements, use exact matches
+  return sponsors
+    .filter((s) => s.active && s.placement.includes(placement))
+    .sort((a, b) => a.priority - b.priority);
 }
