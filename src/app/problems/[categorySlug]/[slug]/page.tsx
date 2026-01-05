@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ReactNode } from "react";
 
 import { BackToProblemsButton } from "@/components/back-to-problems-button";
-import { CommentForm } from "@/components/comment-form";
+import { CommentSection } from "@/components/comments/comment-section";
 import { DeveloperStatusForm } from "@/components/developer-status-form";
 import { FeaturedSolutionCard } from "@/components/featured-solution-card";
 import { FollowButton } from "@/components/follow-button";
@@ -287,37 +287,13 @@ export default async function ProblemDetailPage({
 
       {/* Discussion section */}
       <Card>
-        <CardHeader>
-          <CardTitle>Discussion ({discussionComments.length})</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <CommentForm
+        <CardContent className="p-6">
+          <CommentSection
             problemId={problem.id}
-            type="discussion"
+            comments={discussionComments}
             isAuthenticated={!!session?.user}
+            currentUserId={session?.user?.id}
           />
-
-          {discussionComments.length > 0 ? (
-            discussionComments.map((comment) => (
-              <div key={comment.id} className="space-y-2 rounded-lg border p-4">
-                <div className="flex items-start justify-between">
-                  <p className="text-sm font-medium">
-                    {comment.author.name || "Anonymous"}
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    {formatDistanceToNow(new Date(comment.createdAt), {
-                      addSuffix: true,
-                    })}
-                  </p>
-                </div>
-                <p className="text-sm">{comment.content}</p>
-              </div>
-            ))
-          ) : (
-            <p className="text-muted-foreground text-center text-sm">
-              No discussions yet. Be the first to comment!
-            </p>
-          )}
         </CardContent>
       </Card>
     </div>

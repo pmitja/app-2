@@ -46,6 +46,14 @@ export function HeaderBar({ session }: HeaderBarProps) {
         </Link>
 
         <nav className="flex flex-1 items-center gap-4">
+          {session?.user && (
+            <Link
+              href="/followed"
+              className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
+            >
+              Following
+            </Link>
+          )}
           <Link
             href="/sponsors"
             className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"

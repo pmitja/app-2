@@ -187,10 +187,34 @@ export const problemComments = pgTable("problem_comment", {
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  parentId: text("parentId"),
   type: text("type").notNull(), // "discussion" | "solution"
   content: text("content").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt"),
 });
+
+export const problemCommentVotes = pgTable(
+  "problem_comment_vote",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    commentId: text("commentId")
+      .notNull()
+      .references(() => problemComments.id, { onDelete: "cascade" }),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    voteType: text("voteType", { enum: ["like", "dislike"] }).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [
+    {
+      uniqueCommentVote: unique().on(t.commentId, t.userId),
+    },
+  ]
+);
 
 export const developerStatuses = pgTable(
   "developer_status",
@@ -294,6 +318,7 @@ export const db = drizzle({
     problemVotes,
     problemFollows,
     problemComments,
+    problemCommentVotes,
     developerStatuses,
     sponsorSlots,
     problemSolutions,

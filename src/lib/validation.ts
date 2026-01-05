@@ -122,7 +122,7 @@ export const commentTypeSchema = z.enum(["discussion", "solution"]);
 export const createCommentSchema = z.object({
   content: z
     .string()
-    .min(10, "Comment must be at least 10 characters")
+    .min(2, "Comment must be at least 2 characters")
     .max(2000, "Comment must be less than 2000 characters"),
   type: commentTypeSchema,
 });

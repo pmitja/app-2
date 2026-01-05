@@ -4,6 +4,7 @@ import {
     categories,
     db,
     developerStatuses,
+    problemCommentVotes,
     problemComments,
     problemFollows,
     problemLikes,
@@ -295,6 +296,189 @@ export async function getProblems(
   }));
 }
 
+// Get problems followed by a user
+export async function getFollowedProblems(
+  userId: string
+): Promise<ProblemWithVotes[]> {
+  // Get IDs of problems user follows
+  const followedProblemIds = await db
+    .select({ problemId: problemFollows.problemId })
+    .from(problemFollows)
+    .where(eq(problemFollows.userId, userId));
+
+  if (followedProblemIds.length === 0) {
+    return [];
+  }
+
+  const ids = followedProblemIds.map((f) => f.problemId);
+
+  // Create subqueries for counts
+  const voteCountSubquery = db
+    .select({
+      problemId: problemVotes.problemId,
+      count: count().as("vote_count"),
+    })
+    .from(problemVotes)
+    .groupBy(problemVotes.problemId)
+    .as("vote_counts");
+
+  const solutionCountSubquery = db
+    .select({
+      problemId: problemSolutions.problemId,
+      count: count().as("solution_count"),
+    })
+    .from(problemSolutions)
+    .groupBy(problemSolutions.problemId)
+    .as("solution_counts");
+
+  const likeCountSubquery = db
+    .select({
+      problemId: problemLikes.problemId,
+      count: count().as("like_count"),
+    })
+    .from(problemLikes)
+    .groupBy(problemLikes.problemId)
+    .as("like_counts");
+
+  const commentCountSubquery = db
+    .select({
+      problemId: problemComments.problemId,
+      count: count().as("comment_count"),
+    })
+    .from(problemComments)
+    .groupBy(problemComments.problemId)
+    .as("comment_counts");
+
+  const results = await db
+    .select({
+      id: problems.id,
+      userId: problems.userId,
+      title: problems.title,
+      description: problems.description,
+      slug: problems.slug,
+      categoryId: problems.categoryId,
+      categoryName: categories.name,
+      categoryEmoji: categories.emoji,
+      categorySlug: categories.slug,
+      painLevel: problems.painLevel,
+      frequency: problems.frequency,
+      wouldPay: problems.wouldPay,
+      createdAt: problems.createdAt,
+      voteCount: sql<number>`COALESCE(${voteCountSubquery.count}, 0)`,
+      solutionCount: sql<number>`COALESCE(${solutionCountSubquery.count}, 0)`,
+      likeCount: sql<number>`COALESCE(${likeCountSubquery.count}, 0)`,
+      commentCount: sql<number>`COALESCE(${commentCountSubquery.count}, 0)`,
+      userHasVoted: sql<boolean>`EXISTS (
+        SELECT 1 FROM ${problemVotes}
+        WHERE ${problemVotes.problemId} = ${problems.id}
+        AND ${problemVotes.userId} = ${userId}
+      )`,
+      userHasLiked: sql<boolean>`EXISTS (
+        SELECT 1 FROM ${problemLikes}
+        WHERE ${problemLikes.problemId} = ${problems.id}
+        AND ${problemLikes.userId} = ${userId}
+      )`,
+      authorName: users.name,
+      authorEmail: users.email,
+      authorImage: users.image,
+    })
+    .from(problems)
+    .leftJoin(voteCountSubquery, eq(problems.id, voteCountSubquery.problemId))
+    .leftJoin(solutionCountSubquery, eq(problems.id, solutionCountSubquery.problemId))
+    .leftJoin(likeCountSubquery, eq(problems.id, likeCountSubquery.problemId))
+    .leftJoin(commentCountSubquery, eq(problems.id, commentCountSubquery.problemId))
+    .leftJoin(users, eq(problems.userId, users.id))
+    .leftJoin(categories, eq(problems.categoryId, categories.id))
+    .where(inArray(problems.id, ids))
+    .orderBy(desc(problems.createdAt));
+
+  // Fetch featured solutions
+  const problemIdsWithSolutions = results
+    .filter((row) => Number(row.solutionCount) > 0)
+    .map((row) => row.id);
+
+  const featuredSolutionsMap = new Map<
+    string,
+    {
+      id: string;
+      title: string;
+      summary: string;
+      imageUrl: string;
+      targetUrl: string;
+      author: {
+        name: string | null;
+        image: string | null;
+      };
+    }
+  >();
+
+  if (problemIdsWithSolutions.length > 0) {
+    const featuredSolutionsData = await db
+      .select({
+        problemId: problemSolutions.problemId,
+        id: problemSolutions.id,
+        title: problemSolutions.title,
+        summary: problemSolutions.summary,
+        imageUrl: problemSolutions.imageUrl,
+        targetUrl: problemSolutions.targetUrl,
+        authorName: users.name,
+        authorImage: users.image,
+      })
+      .from(problemSolutions)
+      .leftJoin(users, eq(problemSolutions.userId, users.id))
+      .where(
+        and(
+          inArray(problemSolutions.problemId, problemIdsWithSolutions),
+          eq(problemSolutions.isFeatured, true)
+        )
+      );
+
+    for (const solution of featuredSolutionsData) {
+      featuredSolutionsMap.set(solution.problemId, {
+        id: solution.id,
+        title: solution.title,
+        summary: solution.summary,
+        imageUrl: solution.imageUrl,
+        targetUrl: solution.targetUrl,
+        author: {
+          name: solution.authorName,
+          image: solution.authorImage,
+        },
+      });
+    }
+  }
+
+  return results.map((row) => ({
+    id: row.id,
+    userId: row.userId,
+    title: row.title,
+    description: row.description,
+    slug: row.slug || "",
+    category: {
+      id: row.categoryId,
+      name: row.categoryName || "",
+      emoji: row.categoryEmoji || "",
+      slug: row.categorySlug || "",
+    },
+    painLevel: row.painLevel,
+    frequency: row.frequency,
+    wouldPay: row.wouldPay,
+    createdAt: row.createdAt,
+    voteCount: Number(row.voteCount) || 0,
+    userHasVoted: Boolean(row.userHasVoted),
+    likeCount: Number(row.likeCount) || 0,
+    userHasLiked: Boolean(row.userHasLiked),
+    commentCount: Number(row.commentCount) || 0,
+    solutionCount: Number(row.solutionCount) || 0,
+    featuredSolution: featuredSolutionsMap.get(row.id) || null,
+    author: {
+      name: row.authorName,
+      email: row.authorEmail,
+      image: row.authorImage,
+    },
+  }));
+}
+
 // Category functions
 export async function getCategories(): Promise<Category[]> {
   const result = await db.query.categories.findMany({
@@ -315,11 +499,14 @@ export interface ProblemComment {
   content: string;
   type: string;
   createdAt: Date;
+  parentId: string | null;
   author: {
     id: string;
     name: string | null;
     image: string | null;
   };
+  voteCount: number;
+  userVote: "like" | "dislike" | null;
 }
 
 export interface DeveloperStatus {
@@ -419,32 +606,59 @@ export async function getProblemDetail(
     userIsFollowing = !!userFollow;
   }
 
-  // Fetch comments with authors
-  const commentsData = await db
+  // Fetch comments with authors and vote counts
+  const commentLikesSubquery = db
+    .select({
+      commentId: problemCommentVotes.commentId,
+      likes: count(sql`CASE WHEN ${problemCommentVotes.voteType} = 'like' THEN 1 END`).as("likes"),
+      dislikes: count(sql`CASE WHEN ${problemCommentVotes.voteType} = 'dislike' THEN 1 END`).as("dislikes"),
+    })
+    .from(problemCommentVotes)
+    .groupBy(problemCommentVotes.commentId)
+    .as("comment_votes");
+
+  const commentsQuery = db
     .select({
       id: problemComments.id,
       content: problemComments.content,
       type: problemComments.type,
       createdAt: problemComments.createdAt,
+      parentId: problemComments.parentId,
       authorId: users.id,
       authorName: users.name,
       authorImage: users.image,
+      likes: sql<number>`COALESCE(${commentLikesSubquery.likes}, 0)`,
+      dislikes: sql<number>`COALESCE(${commentLikesSubquery.dislikes}, 0)`,
+      userVoteType: userId 
+        ? sql<"like" | "dislike" | null>`(
+            SELECT ${problemCommentVotes.voteType}
+            FROM ${problemCommentVotes}
+            WHERE ${problemCommentVotes.commentId} = ${problemComments.id}
+            AND ${problemCommentVotes.userId} = ${userId}
+          )`
+        : sql<null>`NULL`,
     })
     .from(problemComments)
     .leftJoin(users, eq(problemComments.userId, users.id))
+    .leftJoin(commentLikesSubquery, eq(problemComments.id, commentLikesSubquery.commentId))
     .where(eq(problemComments.problemId, problemId))
     .orderBy(desc(problemComments.createdAt));
+
+  const commentsData = await commentsQuery;
 
   const comments: ProblemComment[] = commentsData.map((comment) => ({
     id: comment.id,
     content: comment.content,
     type: comment.type,
     createdAt: comment.createdAt,
+    parentId: comment.parentId,
     author: {
       id: comment.authorId || "",
       name: comment.authorName,
       image: comment.authorImage,
     },
+    voteCount: (Number(comment.likes) || 0) - (Number(comment.dislikes) || 0),
+    userVote: comment.userVoteType,
   }));
 
   // Fetch developer statuses with user info
