@@ -54,14 +54,14 @@ export function HeaderBar({ session }: HeaderBarProps) {
         <div className="flex flex-1 justify-start">
           <Link
             href="/"
-            className="flex items-center gap-4 font-mono text-lg font-bold"
+            className="flex items-center gap-4 overflow-hidden font-mono text-lg font-bold"
           >
             <Image
               src="/problem-dock__logo.webp"
               alt="Problem Dock logo"
-              width={64}
-              height={64}
-              className="max-h-[64px] object-contain text-black dark:text-white"
+              width={48}
+              height={48}
+              className="max-h-[64px] rounded-xl object-contain text-black dark:text-white"
             />
             <span className="text-black dark:text-white">
               Problem <span className="text-primary">Dock</span>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
 import { Icons } from "@/components/icons";
@@ -20,17 +20,25 @@ import { cn } from "@/lib/utils";
 interface ProblemSearchHeaderProps {
   categories: Category[];
   initialQuery?: string;
+  initialCategorySlug?: string;
 }
 
 export function ProblemSearchHeader({
   categories,
   initialQuery = "",
+  initialCategorySlug,
 }: ProblemSearchHeaderProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [isScrolled, setIsScrolled] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Determine base path - if we're on a category page, use that path
+  const isCategoryPage =
+    pathname?.startsWith("/problems/") && pathname.split("/").length === 3;
+  const basePath = isCategoryPage ? pathname : "/";
 
   // Search state
   const [searchQuery, setSearchQuery] = useState(initialQuery);
@@ -51,10 +59,10 @@ export function ProblemSearchHeader({
     }
 
     startTransition(() => {
-      router.push(`/?${params.toString()}`);
+      router.push(`${basePath}?${params.toString()}`);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch]);
+  }, [debouncedSearch, basePath]);
 
   // Scroll detection for sticky behavior
   useEffect(() => {
@@ -78,12 +86,28 @@ export function ProblemSearchHeader({
         params.delete(key); // Remove if "all"
       }
 
-      router.push(`/?${params.toString()}`);
+      router.push(`${basePath}?${params.toString()}`);
     });
   };
 
   const handleCategoryClick = (categorySlug: string) => {
     startTransition(() => {
+      // If on a category page and clicking "all", go to home
+      if (categorySlug === "all" && isCategoryPage) {
+        const params = new URLSearchParams(searchParams);
+        params.delete("category");
+        router.push(`/?${params.toString()}`);
+        return;
+      }
+
+      // If on a category page and clicking a different category, navigate to that category page
+      if (isCategoryPage && categorySlug !== initialCategorySlug) {
+        const params = new URLSearchParams(searchParams);
+        router.push(`/problems/${categorySlug}?${params.toString()}`);
+        return;
+      }
+
+      // For home page, use query params for multiple category selection
       const params = new URLSearchParams(searchParams);
 
       if (categorySlug === "all") {
@@ -114,7 +138,7 @@ export function ProblemSearchHeader({
         }
       }
 
-      router.push(`/?${params.toString()}`);
+      router.push(`${basePath}?${params.toString()}`);
     });
   };
 
@@ -124,9 +148,18 @@ export function ProblemSearchHeader({
 
   const currentSort = searchParams.get("sort") || "votes";
 
-  // Parse selected categories from URL
+  // Parse selected categories from URL or path
   const categoryParam = searchParams.get("category");
   const selectedCategories = categoryParam ? categoryParam.split(",") : [];
+
+  // If on a category page, include the category from the path
+  if (
+    initialCategorySlug &&
+    !selectedCategories.includes(initialCategorySlug)
+  ) {
+    selectedCategories.push(initialCategorySlug);
+  }
+
   const hasSelectedCategories = selectedCategories.length > 0;
 
   return (

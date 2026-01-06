@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import type { Metadata } from "next";
 
 import { AppShell } from "@/components/app-shell";
+import { OrganizationSchema } from "@/components/structured-data/organization-schema";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Toaster } from "@/components/ui/sonner";
@@ -19,6 +20,9 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   keywords: siteConfig.keywords,
   robots: { index: true, follow: true },
+  alternates: {
+    canonical: siteConfig.url,
+  },
   icons: {
     icon: "/favicon/favicon.ico",
     shortcut: "/favicon/favicon-16x16.png",
@@ -32,14 +36,23 @@ export const metadata: Metadata = {
     title: siteConfig.title,
     description: siteConfig.description,
     siteName: siteConfig.title,
-    images: "/opengraph-image.jpg",
+    images: [
+      {
+        url: "/opengraph-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: siteConfig.title,
+      },
+    ],
     type: "website",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
     title: siteConfig.title,
     description: siteConfig.description,
-    images: "/opengraph-image.jpg",
+    images: ["/opengraph-image.jpg"],
+    creator: "@problemdock",
   },
 };
 
@@ -47,6 +60,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn("min-h-screen font-sans", fonts)}>
+        <OrganizationSchema />
         <ThemeProvider attribute="class">
           <AppShell>{children}</AppShell>
           <Toaster />

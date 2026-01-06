@@ -1,17 +1,17 @@
 import { and, count, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 
 import {
-    categories,
-    db,
-    developerStatuses,
-    problemCommentVotes,
-    problemComments,
-    problemFollows,
-    problemLikes,
-    problems,
-    problemSolutions,
-    problemVotes,
-    users,
+  categories,
+  db,
+  developerStatuses,
+  problemComments,
+  problemCommentVotes,
+  problemFollows,
+  problemLikes,
+  problems,
+  problemSolutions,
+  problemVotes,
+  users,
 } from "./schema";
 
 export interface GetProblemsParams {
@@ -491,6 +491,23 @@ export async function getCategories(): Promise<Category[]> {
     emoji: cat.emoji,
     slug: cat.slug,
   }));
+}
+
+export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+  const result = await db.query.categories.findFirst({
+    where: eq(categories.slug, slug),
+  });
+  
+  if (!result) {
+    return null;
+  }
+  
+  return {
+    id: result.id,
+    name: result.name,
+    emoji: result.emoji,
+    slug: result.slug,
+  };
 }
 
 

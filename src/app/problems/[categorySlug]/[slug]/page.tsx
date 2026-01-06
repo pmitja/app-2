@@ -1,4 +1,5 @@
 import { formatDistanceToNow } from "date-fns";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ReactNode } from "react";
 
@@ -10,12 +11,14 @@ import { FollowButton } from "@/components/follow-button";
 import { ProblemCreatedToast } from "@/components/problem-created-toast";
 import { SolutionCard } from "@/components/solution-card";
 import { SolutionFormModal } from "@/components/solution-form-modal";
+import { ProblemSchema } from "@/components/structured-data/problem-schema";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { VoteButton } from "@/components/vote-button";
 import { auth } from "@/lib/auth";
 import { getProblemDetailBySlug, getProblemSolutions } from "@/lib/queries";
+import { siteConfig } from "@/lib/site-config";
 
 function AccordionSection({
   title,
@@ -55,6 +58,68 @@ interface ProblemDetailPageProps {
   }>;
 }
 
+export async function generateMetadata({
+  params,
+}: ProblemDetailPageProps): Promise<Metadata> {
+  const { categorySlug, slug } = await params;
+  const problem = await getProblemDetailBySlug(categorySlug, slug);
+
+  if (!problem) {
+    return {
+      title: "Problem Not Found",
+    };
+  }
+
+  const url = `${siteConfig.url}/problems/${categorySlug}/${slug}`;
+  const description =
+    problem.description.length > 160
+      ? `${problem.description.substring(0, 157)}...`
+      : problem.description;
+
+  return {
+    title: problem.title,
+    description: description,
+    keywords: [
+      problem.category.name,
+      "real problem",
+      "validated problem",
+      "problem to solve",
+      "developer opportunity",
+      "problem discovery",
+      "find problems",
+      "build solutions",
+      ...siteConfig.keywords,
+    ],
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title: problem.title,
+      description: description,
+      url: url,
+      siteName: siteConfig.title,
+      images: [
+        {
+          url: "/opengraph-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: problem.title,
+        },
+      ],
+      type: "article",
+      publishedTime: problem.createdAt.toISOString(),
+      authors: [problem.author.name || "Anonymous"],
+      tags: [problem.category.name],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: problem.title,
+      description: description,
+      images: ["/opengraph-image.jpg"],
+    },
+  };
+}
+
 export default async function ProblemDetailPage({
   params,
 }: ProblemDetailPageProps) {
@@ -77,8 +142,26 @@ export default async function ProblemDetailPage({
   // Fetch solutions
   const solutions = await getProblemSolutions(problem.id, session?.user?.id);
 
+  const problemUrl = `${siteConfig.url}/problems/${categorySlug}/${slug}`;
+
   return (
     <div className="space-y-6">
+      <ProblemSchema
+        title={problem.title}
+        description={problem.description}
+        url={problemUrl}
+        category={problem.category.name}
+        categorySlug={categorySlug}
+        author={problem.author}
+        createdAt={problem.createdAt}
+        voteCount={problem.voteCount}
+        commentCount={problem.comments.length}
+        solutionCount={
+          solutions.featured
+            ? 1 + solutions.others.length
+            : solutions.others.length
+        }
+      />
       <ProblemCreatedToast />
 
       {/* Back Button */}

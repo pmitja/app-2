@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ProblemsList } from "@/components/problems-list";
@@ -20,6 +20,12 @@ export function ProblemsListInfinite({
   const [hasMore, setHasMore] = useState(initialProblems.length === 20);
   const observerTarget = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  // Extract category from pathname if on a category page
+  const isCategoryPage =
+    pathname?.startsWith("/problems/") && pathname.split("/").length === 3;
+  const categoryFromPath = isCategoryPage ? pathname.split("/")[2] : null;
 
   // Reset when filters change
   useEffect(() => {
@@ -36,6 +42,11 @@ export function ProblemsListInfinite({
     params.set("limit", "20");
     params.set("offset", problems.length.toString());
 
+    // If on a category page, ensure the category is included in the API call
+    if (categoryFromPath) {
+      params.set("category", categoryFromPath);
+    }
+
     try {
       const response = await fetch(`/api/problems?${params}`);
       const data = await response.json();
@@ -47,7 +58,7 @@ export function ProblemsListInfinite({
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, hasMore, searchParams, problems.length]);
+  }, [isLoading, hasMore, searchParams, problems.length, categoryFromPath]);
 
   // Intersection observer for infinite scroll
   useEffect(() => {

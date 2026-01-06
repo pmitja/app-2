@@ -1,6 +1,33 @@
+import type { Metadata } from "next";
+
 import { ProblemFormWrapper } from "@/components/problem-form-wrapper";
 import { auth } from "@/lib/auth";
 import { getCategories } from "@/lib/queries";
+import { siteConfig } from "@/lib/site-config";
+
+export const metadata: Metadata = {
+  title: "Submit a Problem",
+  description:
+    "Post a problem you're facing. Developers are looking for real, validated problems to solve. Share your challenges and connect with developers who want to build solutions for real problems.",
+  alternates: {
+    canonical: `${siteConfig.url}/problems/new`,
+  },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: "Submit a Problem",
+    description:
+      "Post a problem you're facing. Developers are looking for real, validated problems to solve.",
+    url: `${siteConfig.url}/problems/new`,
+    siteName: siteConfig.title,
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Submit a Problem",
+    description:
+      "Post a problem you're facing. Developers are looking for real, validated problems to solve.",
+  },
+};
 
 export default async function NewProblemPage() {
   const session = await auth();

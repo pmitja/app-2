@@ -1,3 +1,4 @@
+import { Footer } from "@/components/footer";
 import { HeaderBar } from "@/components/header-bar";
 import { SponsorBar } from "@/components/sponsors/sponsor-bar";
 import { SponsorCarousel } from "@/components/sponsors/sponsor-carousel";
@@ -31,14 +32,17 @@ export async function AppShell({ children }: AppShellProps) {
           </aside>
 
           {/* Main Content - centered with container */}
-          <main className="container pt-0 md:pt-5">
+          <main className="container flex flex-col pt-0 md:pt-5">
             {/* Optional top sponsor bar (desktop + mobile, behind feature flag) */}
             <SponsorBar placement="TOP_BAR" />
 
-            {children}
+            <div className="flex-1">{children}</div>
 
             {/* Optional bottom sponsor bar (desktop + mobile, behind feature flag) */}
             <SponsorBar placement="BOTTOM_BAR" />
+
+            {/* Footer - only in main content area */}
+            <Footer />
           </main>
 
           {/* Right Sponsor Rail - Desktop only, outside container */}

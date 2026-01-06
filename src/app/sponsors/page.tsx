@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import {
@@ -14,6 +15,30 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { siteConfig } from "@/lib/site-config";
+
+export const metadata: Metadata = {
+  title: "Get Your Startup in Front of Developers",
+  description:
+    "Get your startup in front of developers actively seeking validated problems to solve. Sponsor Problem Dock and reach developers who are researching real problems before building products.",
+  alternates: {
+    canonical: `${siteConfig.url}/sponsors`,
+  },
+  openGraph: {
+    title: "Get Your Startup in Front of Developers",
+    description:
+      "Get your startup in front of developers actively seeking validated problems to solve.",
+    url: `${siteConfig.url}/sponsors`,
+    siteName: siteConfig.title,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Get Your Startup in Front of Developers",
+    description:
+      "Get your startup in front of developers actively seeking validated problems to solve.",
+  },
+};
 
 export default async function SponsorsPage() {
   const [availabilityResult, sponsorsResult] = await Promise.all([
