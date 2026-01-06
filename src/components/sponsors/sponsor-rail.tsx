@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { Sponsor, SponsorPlacement } from "@/lib/sponsors";
 import { getSponsorsByPlacement } from "@/lib/sponsors";
 
+import { EmptySponsorCard } from "./empty-sponsor-card";
 import { FlippableSponsorCard } from "./flippable-sponsor-card";
 import { useSponsors } from "./sponsors-provider";
 
@@ -218,12 +219,12 @@ export function SponsorRail({ placement, maxSponsors = 6 }: SponsorRailProps) {
     );
   }
 
-  if (cardSponsors.length === 0) {
-    return null;
-  }
+  // Calculate how many empty cards we need
+  const emptyCardCount = Math.max(0, maxSponsors - cardSponsors.length);
 
   return (
     <div className="flex h-full flex-col gap-3">
+      {/* Render sponsor cards */}
       {cardSponsors.map((cardData, idx) => {
         const isFlipped = flippedCards.has(idx);
 
@@ -237,6 +238,13 @@ export function SponsorRail({ placement, maxSponsors = 6 }: SponsorRailProps) {
           />
         );
       })}
+      {/* Render empty cards to fill remaining slots */}
+      {Array.from({ length: emptyCardCount }).map((_, idx) => (
+        <EmptySponsorCard
+          key={`empty-${idx}`}
+          className="min-h-0 flex-1"
+        />
+      ))}
     </div>
   );
 }
