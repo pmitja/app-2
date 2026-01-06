@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -78,12 +77,12 @@ export function SolutionCard({
       rel="noopener noreferrer"
     >
       <div className="bg-muted relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg">
-        <Image
+        <img
           src={solution.imageUrl}
           alt={solution.title}
-          fill
           className="object-contain p-1.5 transition-transform group-hover:scale-105"
-          sizes="64px"
+          width={64}
+          height={64}
         />
       </div>
 
