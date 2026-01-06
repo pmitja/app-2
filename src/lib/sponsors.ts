@@ -63,7 +63,9 @@ export function mapSponsorSlotToSponsor(row: {
   title: string;
   description: string;
   ctaUrl: string;
+  ctaText?: string | null;
   logo: string | null;
+  imageUrl?: string | null;
   backgroundImageUrl?: string | null;
   variant: string;
   placements: string;
@@ -71,12 +73,16 @@ export function mapSponsorSlotToSponsor(row: {
   status: string;
   month: string;
 }): Sponsor {
+  // Use imageUrl if provided, otherwise fall back to logo
+  // imageUrl is typically a full URL, logo might be emoji or short text
+  const logoValue = row.imageUrl ?? row.logo ?? undefined;
+
   return {
     id: row.id,
     name: row.title,
     tagline: row.description,
     href: row.ctaUrl,
-    logo: row.logo ?? undefined,
+    logo: logoValue,
     backgroundImageUrl: row.backgroundImageUrl ?? undefined,
     variant: (row.variant as SponsorVariant) || "blue",
     placement: parsePlacements(row.placements ?? undefined),

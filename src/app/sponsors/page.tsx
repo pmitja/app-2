@@ -70,49 +70,22 @@ export default async function SponsorsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              {/* Current Month */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">
-                    {formatMonth(currentMonth)}
-                  </span>
-                  <Badge
-                    variant={
-                      currentCount >= maxSponsors ? "destructive" : "default"
-                    }
-                  >
-                    {currentCount}/{maxSponsors} filled
-                  </Badge>
-                </div>
-                <div className="bg-secondary h-2 overflow-hidden rounded-full">
-                  <div
-                    className="bg-primary h-full transition-all"
-                    style={{ width: `${(currentCount / maxSponsors) * 100}%` }}
-                  />
-                </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">
+                  {formatMonth(nextMonth)}
+                </span>
+                <Badge
+                  variant={nextCount >= maxSponsors ? "destructive" : "default"}
+                >
+                  {nextCount}/{maxSponsors} filled
+                </Badge>
               </div>
-
-              {/* Next Month */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">
-                    {formatMonth(nextMonth)}
-                  </span>
-                  <Badge
-                    variant={
-                      nextCount >= maxSponsors ? "destructive" : "default"
-                    }
-                  >
-                    {nextCount}/{maxSponsors} filled
-                  </Badge>
-                </div>
-                <div className="bg-secondary h-2 overflow-hidden rounded-full">
-                  <div
-                    className="bg-primary h-full transition-all"
-                    style={{ width: `${(nextCount / maxSponsors) * 100}%` }}
-                  />
-                </div>
+              <div className="bg-secondary h-2 overflow-hidden rounded-full">
+                <div
+                  className="bg-primary h-full transition-all"
+                  style={{ width: `${(nextCount / maxSponsors) * 100}%` }}
+                />
               </div>
             </div>
 
@@ -241,10 +214,10 @@ export default async function SponsorsPage() {
               </li>
             </ul>
 
-            {nextMonthAvailable ? (
+            {currentCount < maxSponsors ? (
               <Button asChild size="lg" className="w-full">
                 <Link href="/sponsors/checkout">
-                  Lock Your Spot for {formatMonth(nextMonth)}
+                  Lock Your Spot for {formatMonth(currentMonth)}
                 </Link>
               </Button>
             ) : (

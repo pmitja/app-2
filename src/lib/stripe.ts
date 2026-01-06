@@ -4,4 +4,5 @@ import { env } from "@/env.mjs";
 
 export const stripeServer = new Stripe(env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-10-29.clover",
+  typescript: true,
 });

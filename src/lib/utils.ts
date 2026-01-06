@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { eq } from "drizzle-orm";
 import { twMerge } from "tailwind-merge";
 
+import { env } from "@/env.mjs";
 import { db, problems } from "./schema";
 
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
@@ -53,4 +54,8 @@ export async function generateUniqueSlug(title: string): Promise<string> {
     counter++;
     uniqueSlug = `${baseSlug}-${counter}`;
   }
+}
+
+export function absoluteUrl(path: string) {
+  return `${env.APP_URL}${path}`;
 }

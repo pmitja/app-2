@@ -285,7 +285,8 @@ export default function SponsorCheckoutPage() {
                         "Your description will appear here",
                       href: formValues.ctaUrl || "#",
                       logo: formValues.imageUrl ? "📸" : undefined,
-                      backgroundImageUrl: formValues.backgroundImageUrl || undefined,
+                      backgroundImageUrl:
+                        formValues.backgroundImageUrl || undefined,
                       variant: "blue",
                       placement: ["RAIL_LEFT"],
                       priority: 0,

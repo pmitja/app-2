@@ -23,21 +23,6 @@ export function SponsorCarousel({
 
   const byPlacement = getSponsorsByPlacement(sponsors, placement);
 
-  // Debug logging
-  console.log(
-    `[SponsorCarousel ${placement}] Total sponsors:`,
-    sponsors.length,
-  );
-  console.log(
-    `[SponsorCarousel ${placement}] Filtered sponsors:`,
-    byPlacement.length,
-  );
-  console.log(`[SponsorCarousel ${placement}] Is loading:`, isLoading);
-  console.log(
-    `[SponsorCarousel ${placement}] Filtered sponsor names:`,
-    byPlacement.map((s) => s.name),
-  );
-
   // If no sponsors for this placement, show a debug message
   if (!isLoading && byPlacement.length === 0) {
     return (
@@ -83,7 +68,7 @@ export function SponsorCarousel({
   return (
     <div
       className={cn(
-        "relative w-full overflow-hidden py-4 bg-neutral-100 dark:bg-black",
+        "relative w-full overflow-hidden bg-neutral-100 py-4 dark:bg-black",
         placement === "MOBILE_CAROUSEL_TOP"
           ? "border-b-2 border-[#333]"
           : "border-t-2 border-[#333]",

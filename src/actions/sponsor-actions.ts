@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth";
 import { db, sponsorSlots, users } from "@/lib/schema";
 import { mapSponsorSlotToSponsor } from "@/lib/sponsors";
 import { stripeServer } from "@/lib/stripe";
+import { absoluteUrl } from "@/lib/utils";
 import { sponsorSlotSchema } from "@/lib/validation";
 
 const SPONSOR_PRICE = 9900; // $99 in cents
@@ -39,16 +40,21 @@ function getPreviousMonth(): string {
   return `${year}-${month}`;
 }
 
-// Normalize URL by removing trailing slashes
-function normalizeUrl(url: string): string {
-  return url.replace(/\/+$/, "");
+// Get the active month for sponsors based on current date
+// Sponsors from a month should be shown until the 1st of the next month
+// Example: January sponsors show until February 1st (inclusive)
+function getActiveSponsorMonth(): string {
+  const now = new Date();
+  const dayOfMonth = now.getDate();
+  
+  // If today is the 1st, show previous month's sponsors
+  // Otherwise, show current month's sponsors
+  if (dayOfMonth === 1) {
+    return getPreviousMonth();
+  }
+  return getCurrentMonth();
 }
 
-// Get base URL for the application
-// env.APP_URL is guaranteed to be a valid URL by zod validation in env.mjs
-function getBaseUrl(): string {
-  return normalizeUrl(env.APP_URL);
-}
 
 // Create Stripe checkout session for sponsor slot
 export async function createSponsorCheckout(formData: unknown) {
@@ -83,6 +89,13 @@ export async function createSponsorCheckout(formData: unknown) {
     }
 
     // Create pending sponsor slot
+    const imageUrl = validatedData.imageUrl && validatedData.imageUrl.trim() !== "" 
+      ? validatedData.imageUrl 
+      : null;
+    const backgroundImageUrl = validatedData.backgroundImageUrl && validatedData.backgroundImageUrl.trim() !== "" 
+      ? validatedData.backgroundImageUrl 
+      : null;
+    
     const [sponsorSlot] = await db
       .insert(sponsorSlots)
       .values({
@@ -92,10 +105,10 @@ export async function createSponsorCheckout(formData: unknown) {
         description: validatedData.description,
         ctaText: validatedData.ctaText,
         ctaUrl: validatedData.ctaUrl,
-        imageUrl: validatedData.imageUrl || null,
-        backgroundImageUrl: validatedData.backgroundImageUrl || null,
-        // Layout / display defaults for new sponsors
-        logo: null,
+        imageUrl,
+        backgroundImageUrl,
+        // Set logo to same value as imageUrl for consistency
+        logo: imageUrl,
         variant: "blue",
         placements: "RAIL_LEFT,RAIL_RIGHT,MOBILE_STACK",
         priority: 0,
@@ -105,7 +118,8 @@ export async function createSponsorCheckout(formData: unknown) {
       .returning();
 
     // Get base URL for checkout redirects
-    const baseUrl = getBaseUrl();
+    const successUrl = absoluteUrl("/sponsors/success?session_id={CHECKOUT_SESSION_ID}")
+    const cancelUrl = absoluteUrl("/sponsors/checkout")
 
     // Create Stripe checkout session
     const checkoutSession = await stripeServer.checkout.sessions.create({
@@ -116,13 +130,21 @@ export async function createSponsorCheckout(formData: unknown) {
           quantity: 1,
         },
       ],
+      payment_method_types: ["card"],
+      billing_address_collection: "auto",
       customer_email: session.user.email || undefined,
       metadata: {
         sponsorSlotId: sponsorSlot.id,
         userId: session.user.id,
       },
-      success_url: `${baseUrl}/sponsors/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/sponsors/checkout`,
+      payment_intent_data: {
+        metadata: {
+          sponsorSlotId: sponsorSlot.id,
+          userId: session.user.id,
+        },
+      },
+      success_url: successUrl,
+      cancel_url: cancelUrl,
     });
 
     return { success: true, checkoutUrl: checkoutSession.url };
@@ -139,12 +161,20 @@ export async function createSponsorCheckout(formData: unknown) {
 }
 
 // Get sponsor availability for current and next months
+// Uses active sponsor month for display, but actual calendar months for booking
 export async function getSponsorAvailability() {
   try {
-    const currentMonth = getCurrentMonth();
-    const nextMonth = getNextMonth();
+    // Use active sponsor month (may be previous month if today is the 1st)
+    // This is the month whose sponsors are currently being displayed
+    const currentMonth = getActiveSponsorMonth();
+    
+    // Get actual current calendar month - this is what we book for
+    const actualCurrentMonth = getCurrentMonth();
+    
+    // Always book for the current calendar month
+    const bookingMonth = actualCurrentMonth;
 
-    // Count active sponsors for current month
+    // Count active sponsors for current month (the month whose sponsors are being displayed)
     const [{ value: currentCount }] = await db
       .select({ value: count() })
       .from(sponsorSlots)
@@ -155,13 +185,13 @@ export async function getSponsorAvailability() {
         ),
       );
 
-    // Count active sponsors for next month
-    const [{ value: nextCount }] = await db
+    // Count active sponsors for booking month (the current calendar month available for booking)
+    const [{ value: bookingCount }] = await db
       .select({ value: count() })
       .from(sponsorSlots)
       .where(
         and(
-          eq(sponsorSlots.month, nextMonth),
+          eq(sponsorSlots.month, bookingMonth),
           eq(sponsorSlots.status, "active"),
         ),
       );
@@ -171,10 +201,10 @@ export async function getSponsorAvailability() {
       data: {
         currentMonth,
         currentCount,
-        nextMonth,
-        nextCount,
+        nextMonth: bookingMonth, // The current calendar month available for booking
+        nextCount: bookingCount,
         maxSponsors: MAX_SPONSORS_PER_MONTH,
-        nextMonthAvailable: nextCount < MAX_SPONSORS_PER_MONTH,
+        nextMonthAvailable: bookingCount < MAX_SPONSORS_PER_MONTH,
       },
     };
   } catch (error) {
@@ -187,12 +217,10 @@ export async function getSponsorAvailability() {
 }
 
 // Get active sponsors for a specific month (used by AdRail / legacy UI)
-// Automatically renews sponsors from previous month to current month if needed
+// If no month is provided, uses the active sponsor month based on current date
 export async function getActiveSponsors(month?: string) {
   try {
-    const currentMonth = getCurrentMonth();
-    const previousMonth = getPreviousMonth();
-    const targetMonth = month || currentMonth;
+    const targetMonth = month || getActiveSponsorMonth();
 
     const selectFields = {
       id: sponsorSlots.id,
@@ -210,7 +238,7 @@ export async function getActiveSponsors(month?: string) {
       priority: sponsorSlots.priority,
     };
 
-    let activeSponsors = await db
+    const activeSponsors = await db
       .select(selectFields)
       .from(sponsorSlots)
       .where(
@@ -219,31 +247,6 @@ export async function getActiveSponsors(month?: string) {
           eq(sponsorSlots.status, "active"),
         ),
       );
-
-    // If no explicit month was provided and no sponsors found, auto-renew from previous month
-    if (!month && activeSponsors.length === 0) {
-      // Update previous month's active sponsors to current month
-      await db
-        .update(sponsorSlots)
-        .set({ month: currentMonth })
-        .where(
-          and(
-            eq(sponsorSlots.month, previousMonth),
-            eq(sponsorSlots.status, "active"),
-          ),
-        );
-
-      // Fetch the updated sponsors
-      activeSponsors = await db
-        .select(selectFields)
-        .from(sponsorSlots)
-        .where(
-          and(
-            eq(sponsorSlots.month, currentMonth),
-            eq(sponsorSlots.status, "active"),
-          ),
-        );
-    }
 
     return {
       success: true,
@@ -260,72 +263,41 @@ export async function getActiveSponsors(month?: string) {
 }
 
 // Get sponsors mapped to layout model (used by global Sponsors UI)
-// Automatically renews sponsors from previous month to current month if needed
+// Shows sponsors for the active month based on current date
+// Sponsors from a month are shown until the 1st of the next month
 export async function getSponsorsForLayout() {
   try {
-    const currentMonth = getCurrentMonth();
-    const previousMonth = getPreviousMonth();
+    const activeMonth = getActiveSponsorMonth();
 
-    // First, try to get sponsors for the current month
-    let rows = await db
-      .select()
+    // Explicitly select all fields needed for mapping
+    const selectFields = {
+      id: sponsorSlots.id,
+      title: sponsorSlots.title,
+      description: sponsorSlots.description,
+      ctaText: sponsorSlots.ctaText,
+      ctaUrl: sponsorSlots.ctaUrl,
+      imageUrl: sponsorSlots.imageUrl,
+      backgroundImageUrl: sponsorSlots.backgroundImageUrl,
+      logo: sponsorSlots.logo,
+      variant: sponsorSlots.variant,
+      placements: sponsorSlots.placements,
+      priority: sponsorSlots.priority,
+      status: sponsorSlots.status,
+      month: sponsorSlots.month,
+    };
+
+    // Get sponsors for the active month
+    const rows = await db
+      .select(selectFields)
       .from(sponsorSlots)
       .where(
         and(
-          eq(sponsorSlots.month, currentMonth),
+          eq(sponsorSlots.month, activeMonth),
           eq(sponsorSlots.status, "active"),
         ),
       );
 
-    // If no sponsors for current month, auto-renew previous month's sponsors
-    if (rows.length === 0) {
-      console.log("[getSponsorsForLayout] No sponsors for current month, auto-renewing from previous month");
-      
-      // Update previous month's active sponsors to current month
-      await db
-        .update(sponsorSlots)
-        .set({ month: currentMonth })
-        .where(
-          and(
-            eq(sponsorSlots.month, previousMonth),
-            eq(sponsorSlots.status, "active"),
-          ),
-        );
-
-      // Now fetch the updated sponsors
-      rows = await db
-        .select()
-        .from(sponsorSlots)
-        .where(
-          and(
-            eq(sponsorSlots.month, currentMonth),
-            eq(sponsorSlots.status, "active"),
-          ),
-        );
-      
-      console.log("[getSponsorsForLayout] Auto-renewed", rows.length, "sponsors to", currentMonth);
-    }
-
-    console.log("[getSponsorsForLayout] Target month:", currentMonth);
-    console.log("[getSponsorsForLayout] Raw rows from DB:", rows.length);
-    console.log(
-      "[getSponsorsForLayout] backgroundImageUrl values:",
-      rows.map((r) => ({
-        title: r.title,
-        backgroundImageUrl: r.backgroundImageUrl,
-        hasBackground: !!r.backgroundImageUrl,
-      })),
-    );
-
     const sponsors = rows.map((row) => mapSponsorSlotToSponsor(row));
-
-    console.log(
-      "[getSponsorsForLayout] After mapping:",
-      sponsors.map((s) => ({
-        name: s.name,
-        backgroundImageUrl: s.backgroundImageUrl,
-      })),
-    );
 
     return {
       success: true,
