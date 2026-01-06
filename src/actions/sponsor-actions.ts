@@ -39,6 +39,17 @@ function getPreviousMonth(): string {
   return `${year}-${month}`;
 }
 
+// Normalize URL by removing trailing slashes
+function normalizeUrl(url: string): string {
+  return url.replace(/\/+$/, "");
+}
+
+// Get base URL for the application
+// env.APP_URL is guaranteed to be a valid URL by zod validation in env.mjs
+function getBaseUrl(): string {
+  return normalizeUrl(env.APP_URL);
+}
+
 // Create Stripe checkout session for sponsor slot
 export async function createSponsorCheckout(formData: unknown) {
   try {
@@ -93,19 +104,15 @@ export async function createSponsorCheckout(formData: unknown) {
       })
       .returning();
 
+    // Get base URL for checkout redirects
+    const baseUrl = getBaseUrl();
+
     // Create Stripe checkout session
     const checkoutSession = await stripeServer.checkout.sessions.create({
       mode: "payment",
       line_items: [
         {
-          price_data: {
-            currency: "usd",
-            unit_amount: SPONSOR_PRICE,
-            product_data: {
-              name: `Sponsor Slot - ${validatedData.month}`,
-              description: `Rotating sponsor slot for ${validatedData.month}`,
-            },
-          },
+          price: env.STRIPE_SPONSOR_SLOT_PRICE_ID,
           quantity: 1,
         },
       ],
@@ -114,8 +121,8 @@ export async function createSponsorCheckout(formData: unknown) {
         sponsorSlotId: sponsorSlot.id,
         userId: session.user.id,
       },
-      success_url: `${env.APP_URL}/sponsors/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${env.APP_URL}/sponsors/checkout`,
+      success_url: `${baseUrl}/sponsors/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/sponsors/checkout`,
     });
 
     return { success: true, checkoutUrl: checkoutSession.url };

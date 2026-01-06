@@ -48,14 +48,7 @@ export const createSolutionPromotionCheckoutAction = async (
     customer: session.user.stripeCustomerId,
     line_items: [
       {
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name: "Solution Promotion",
-            description: "Promote your solution to the featured spot",
-          },
-          unit_amount: 999, // $9.99
-        },
+        price: env.STRIPE_SOLUTION_PROMOTION_PRICE_ID,
         quantity: 1,
       },
     ],
