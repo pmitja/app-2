@@ -30,6 +30,7 @@ export function ProblemSearchHeader({
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState(initialQuery);
@@ -131,15 +132,34 @@ export function ProblemSearchHeader({
   return (
     <div
       className={cn(
-        "sticky top-[90px] z-11 transition-all duration-300 lg:top-0",
+        "sticky top-[85px] z-11 transition-all duration-300 lg:top-0",
         isScrolled
           ? "bg-background/80 border-border border-b py-3 backdrop-blur-sm"
           : "w-full bg-transparent py-8",
       )}
     >
       <div className="space-y-5">
+        {/* Filter Toggle Button - Mobile Only */}
+        <Button
+          variant="outline"
+          size={isScrolled ? "sm" : "default"}
+          onClick={() => setShowFilters(!showFilters)}
+          className={cn(
+            "hidden items-center justify-center max-[480px]:flex",
+            isScrolled ? "h-9 w-9" : "h-10 w-10",
+          )}
+          aria-label={showFilters ? "Hide Filters" : "Show Filters"}
+        >
+          <Icons.filter className="size-4" />
+        </Button>
+
         {/* Search and Sort Row */}
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div
+          className={cn(
+            "flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between",
+            !showFilters && "max-[480px]:hidden",
+          )}
+        >
           {/* Search Bar */}
           <div
             className={cn(
@@ -200,6 +220,7 @@ export function ProblemSearchHeader({
           className={cn(
             "no-scrollbar flex gap-2 overflow-x-auto scroll-smooth lg:flex-wrap",
             "snap-x snap-mandatory pb-2 lg:snap-none lg:pb-0",
+            !showFilters && "max-[480px]:hidden",
           )}
         >
           {/* All Categories Button */}
