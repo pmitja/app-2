@@ -1,0 +1,202 @@
+[
+  {
+    "title": "Finding reliable API documentation is time-consuming",
+    "description": "When building integrations, I spend hours searching through multiple documentation sites, GitHub repos, and Stack Overflow to understand how APIs work. This slows down development significantly.",
+    "category": {
+      "categoryId": "1dd68cf2-d9d2-497d-9146-c5f4bc54ee8c"
+    },
+    "painLevel": 4,
+    "frequency": "Daily",
+    "wouldPay": true
+  },
+  {
+    "title": "Managing expenses across multiple credit cards and wallets",
+    "description": "I use 3+ credit cards, a business account, and digital wallets. Tracking where money goes and categorizing expenses for tax purposes takes hours each month. There's no single view of my spending.",
+    "category": {
+      "categoryId": "d1c34d44-7938-44c7-b40a-a44ee787ee36"
+    },
+    "painLevel": 4,
+    "frequency": "Weekly",
+    "wouldPay": true
+  },
+  {
+    "title": "Password fatigue and insecure password management",
+    "description": "I have 100+ accounts across different platforms. I either reuse weak passwords or use a notebook to track them. Password managers feel clunky and I don't trust them with sensitive data.",
+    "category": {
+      "categoryId": "68c8b973-174b-4721-b28b-befc776075b3"
+    },
+    "painLevel": 5,
+    "frequency": "Daily",
+    "wouldPay": true
+  },
+  {
+    "title": "Finding time to exercise with a busy work schedule",
+    "description": "I want to stay fit but working 9-5 plus commute leaves no time. Online workouts lack accountability, gyms are inconvenient, and I always end up skipping sessions.",
+    "category": {
+      "categoryId": "1e06aca5-f57d-4ad5-9633-6fc2021eef84"
+    },
+    "painLevel": 4,
+    "frequency": "Daily",
+    "wouldPay": true
+  },
+  {
+    "title": "Scheduling meetings across time zones is a nightmare",
+    "description": "Coordinating meetings between teams in 3+ time zones involves endless back-and-forth emails. Tools like Calendly exist but don't integrate well with all calendar systems and require too many clicks.",
+    "category": {
+      "categoryId": "c65bfb68-b4ce-4cc9-bc69-338be2ce60d4"
+    },
+    "painLevel": 4,
+    "frequency": "Daily",
+    "wouldPay": true
+  },
+  {
+    "title": "Meal planning and grocery shopping coordination",
+    "description": "Every week I waste time deciding what to eat, checking recipes, making shopping lists, and dealing with duplicate items in the cart. Multiple family members shopping means wasted food and money.",
+    "category": {
+      "categoryId": "e616689b-2397-4a49-a1c0-522c6b818e86"
+    },
+    "painLevel": 3,
+    "frequency": "Weekly",
+    "wouldPay": true
+  },
+  {
+    "title": "Learning new programming languages and frameworks",
+    "description": "Bootcamps are expensive and outdated. Online tutorials are scattered and low quality. I waste weeks learning deprecated patterns and struggle to apply knowledge to real projects.",
+    "category": {
+      "categoryId": "45313402-9e05-48dd-9fc8-3be6ae5f9ce5"
+    },
+    "painLevel": 4,
+    "frequency": "Weekly",
+    "wouldPay": true
+  },
+  {
+    "title": "Keeping track of bills and subscription renewals",
+    "description": "I'm subscribed to 15+ services (streaming, software, apps). Tracking renewal dates, getting charged unexpectedly, and remembering which subscriptions I actually use is a constant headache.",
+    "category": {
+      "categoryId": "3df9548d-6480-46be-9186-d97f0eb89b37"
+    },
+    "painLevel": 3,
+    "frequency": "Monthly",
+    "wouldPay": true
+  },
+  {
+    "title": "Debugging production issues without proper logging",
+    "description": "When systems fail, we spend hours searching through logs to find the root cause. Our logging is inconsistent, we don't have good correlation IDs, and timestamp issues make it nearly impossible to trace problems.",
+    "category": {
+      "categoryId": "1dd68cf2-d9d2-497d-9146-c5f4bc54ee8c"
+    },
+    "painLevel": 5,
+    "frequency": "Weekly",
+    "wouldPay": true
+  },
+  {
+    "title": "Finding parking in busy urban areas",
+    "description": "Driving to downtown takes 20 minutes but finding parking takes 30. I circle streets, deal with confusing permit zones, and often pay premium prices. There's no reliable real-time data about available spots.",
+    "category": {
+      "categoryId": "1ecdfa66-04ea-4fe0-95b9-20cf6402084d"
+    },
+    "painLevel": 4,
+    "frequency": "Daily",
+    "wouldPay": true
+  },
+  {
+    "title": "Coordinating pet care while traveling",
+    "description": "Finding a trustworthy pet sitter is nerve-wracking. Pet boarding facilities are expensive and I worry about my pet's well-being. I've had to cancel trips because I couldn't arrange care.",
+    "category": {
+      "categoryId": "1ecdfa66-04ea-4fe0-95b9-20cf6402084d"
+    },
+    "painLevel": 4,
+    "frequency": "Monthly",
+    "wouldPay": true
+  },
+  {
+    "title": "Maintaining code quality across distributed teams",
+    "description": "Code reviews are slow, inconsistent, and arguments about style waste time. We have no automated enforcement of best practices. Junior developers keep making the same mistakes repeatedly.",
+    "category": {
+      "categoryId": "1dd68cf2-d9d2-497d-9146-c5f4bc54ee8c"
+    },
+    "painLevel": 4,
+    "frequency": "Daily",
+    "wouldPay": true
+  },
+  {
+    "title": "Managing files across personal and work computers",
+    "description": "I have files scattered on laptop, desktop, phone, and cloud drives. I never know which version is latest. Syncing is unreliable and I'm terrified of losing important documents.",
+    "category": {
+      "categoryId": "a619ebd8-b79f-43a4-976f-a34a0d7f4134"
+    },
+    "painLevel": 4,
+    "frequency": "Daily",
+    "wouldPay": true
+  },
+  {
+    "title": "Getting reliable recommendations for new products",
+    "description": "Reading reviews is exhausting because they're fake, outdated, or biased. I can't trust influencer recommendations. I waste time comparing specs and still end up buying the wrong product.",
+    "category": {
+      "categoryId": "e616689b-2397-4a49-a1c0-522c6b818e86"
+    },
+    "painLevel": 3,
+    "frequency": "Weekly",
+    "wouldPay": true
+  },
+  {
+    "title": "Maintaining database performance as data grows",
+    "description": "Query performance degrades as tables grow. We struggle with indexing strategies, don't know which queries are slow, and our monitoring doesn't show us the root cause of performance issues.",
+    "category": {
+      "categoryId": "1dd68cf2-d9d2-497d-9146-c5f4bc54ee8c"
+    },
+    "painLevel": 5,
+    "frequency": "Weekly",
+    "wouldPay": true
+  },
+  {
+    "title": "Finding contractors for home repairs",
+    "description": "Finding trustworthy, affordable plumbers, electricians, or roofers is difficult. Vetting them takes forever, prices vary wildly, and I often get poor work. Referrals are outdated and unreliable.",
+    "category": {
+      "categoryId": "aa83621d-09a7-4f61-a715-054423d435e2"
+    },
+    "painLevel": 4,
+    "frequency": "Monthly",
+    "wouldPay": true
+  },
+  {
+    "title": "Managing personal health records and medical appointments",
+    "description": "My medical history is scattered across different clinics and hospitals. No one has a complete picture of my health. Scheduling appointments involves phone calls and coordinating across multiple practices.",
+    "category": {
+      "categoryId": "1e06aca5-f57d-4ad5-9633-6fc2021eef84"
+    },
+    "painLevel": 4,
+    "frequency": "Monthly",
+    "wouldPay": true
+  },
+  {
+    "title": "Breaking dependency cycles in legacy codebases",
+    "description": "Old code is a tangled mess of circular dependencies. Every change risks breaking something elsewhere. Refactoring is risky and we lack the tools to visualize the dependency graph clearly.",
+    "category": {
+      "categoryId": "1dd68cf2-d9d2-497d-9146-c5f4bc54ee8c"
+    },
+    "painLevel": 5,
+    "frequency": "Daily",
+    "wouldPay": true
+  },
+  {
+    "title": "Staying updated on industry news and trends",
+    "description": "Too much content to consume. I get information from scattered sources—Twitter, newsletters, Reddit, blogs. I miss important announcements and waste time on irrelevant news that clutters my feed.",
+    "category": {
+      "categoryId": "70b6ac60-30c0-4e60-be04-de10a83aae56"
+    },
+    "painLevel": 3,
+    "frequency": "Daily",
+    "wouldPay": true
+  },
+  {
+    "title": "Coordinating wedding planning with multiple vendors",
+    "description": "Managing timelines, budgets, and communication with 10+ vendors is chaotic. Nobody's on the same page, updates are scattered across email/texts/calls, and I'm constantly firefighting problems.",
+    "category": {
+      "categoryId": "f3a9c860-3aa3-4e69-bee4-871f3c47c491"
+    },
+    "painLevel": 5,
+    "frequency": "Daily",
+    "wouldPay": true
+  }
+]
