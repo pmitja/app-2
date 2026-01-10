@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,9 @@ export function ProblemSearchHeader({
   const [isPending, startTransition] = useTransition();
   const [isScrolled, setIsScrolled] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [showAllFilters, setShowAllFilters] = useState(false);
+  const [shouldShowToggle, setShouldShowToggle] = useState(false);
+  const filterContainerRef = useRef<HTMLDivElement>(null);
 
   // Determine base path - if we're on a category page, use that path
   const isCategoryPage =
@@ -73,6 +76,21 @@ export function ProblemSearchHeader({
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Check if filters overflow 2 lines and toggle button should be shown
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (filterContainerRef.current) {
+        const scrollHeight = filterContainerRef.current.scrollHeight;
+        const maxHeight = 88; // 2 lines height
+        setShouldShowToggle(scrollHeight > maxHeight);
+      }
+    };
+
+    checkOverflow();
+    window.addEventListener("resize", checkOverflow);
+    return () => window.removeEventListener("resize", checkOverflow);
+  }, [categories]);
 
   const updateFilter = (key: string, value: string) => {
     startTransition(() => {
@@ -249,48 +267,79 @@ export function ProblemSearchHeader({
         </div>
 
         {/* Category Pills Row */}
-        <div
-          className={cn(
-            "no-scrollbar flex gap-2 overflow-x-auto scroll-smooth lg:flex-wrap",
-            "snap-x snap-mandatory pb-2 lg:snap-none lg:pb-0",
-            !showFilters && "max-[480px]:hidden",
-          )}
-        >
-          {/* All Categories Button */}
-          <Button
-            variant={!hasSelectedCategories ? "default" : "outline"}
-            size={isScrolled ? "sm" : "default"}
-            onClick={() => handleCategoryClick("all")}
-            disabled={isPending}
+        <div className="relative">
+          <div
+            ref={filterContainerRef}
             className={cn(
-              "flex-shrink-0 snap-start rounded-full transition-all duration-200",
-              hasSelectedCategories && "hover:scale-105",
+              "no-scrollbar flex gap-2 overflow-x-auto scroll-smooth lg:flex-wrap",
+              "snap-x snap-mandatory pb-2 lg:snap-none lg:pb-0",
+              !showFilters && "max-[480px]:hidden",
+              // Limit to 2 lines on desktop when collapsed
+              !showAllFilters && "lg:max-h-[88px] lg:overflow-hidden",
+              showAllFilters && "lg:max-h-none",
+              "transition-all duration-300 ease-in-out",
             )}
           >
-            All
-          </Button>
+            {/* All Categories Button */}
+            <Button
+              variant={!hasSelectedCategories ? "default" : "outline"}
+              size={isScrolled ? "sm" : "default"}
+              onClick={() => handleCategoryClick("all")}
+              disabled={isPending}
+              className={cn(
+                "flex-shrink-0 snap-start rounded-full transition-all duration-200",
+                hasSelectedCategories && "hover:scale-105",
+              )}
+            >
+              All
+            </Button>
 
-          {/* Category Buttons */}
-          {categories.map((category) => {
-            const isActive = selectedCategories.includes(category.slug);
+            {/* Category Buttons */}
+            {categories.map((category) => {
+              const isActive = selectedCategories.includes(category.slug);
 
-            return (
+              return (
+                <Button
+                  key={category.id}
+                  variant={isActive ? "default" : "outline"}
+                  size={isScrolled ? "sm" : "default"}
+                  onClick={() => handleCategoryClick(category.slug)}
+                  disabled={isPending}
+                  className={cn(
+                    "flex-shrink-0 snap-start rounded-full transition-all duration-200",
+                    !isActive && "hover:scale-105",
+                  )}
+                >
+                  <span>{category.emoji}</span>
+                  <span>{category.name}</span>
+                </Button>
+              );
+            })}
+          </div>
+
+          {/* Show More / Show Less Button - Desktop only, shown when filters exceed threshold */}
+          {shouldShowToggle && (
+            <div className="mt-3 hidden lg:flex lg:justify-center">
               <Button
-                key={category.id}
-                variant={isActive ? "default" : "outline"}
-                size={isScrolled ? "sm" : "default"}
-                onClick={() => handleCategoryClick(category.slug)}
-                disabled={isPending}
-                className={cn(
-                  "flex-shrink-0 snap-start rounded-full transition-all duration-200",
-                  !isActive && "hover:scale-105",
-                )}
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAllFilters(!showAllFilters)}
+                className="text-muted-foreground"
               >
-                <span>{category.emoji}</span>
-                <span>{category.name}</span>
+                {showAllFilters ? (
+                  <>
+                    Show less
+                    <Icons.chevronUp className="ml-1 size-4" />
+                  </>
+                ) : (
+                  <>
+                    Show more filters
+                    <Icons.chevronDown className="ml-1 size-4" />
+                  </>
+                )}
               </Button>
-            );
-          })}
+            </div>
+          )}
         </div>
       </div>
     </div>

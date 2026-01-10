@@ -1,6 +1,8 @@
 import {
   ArrowUp,
   BarChart3,
+  ChevronDown,
+  ChevronUp,
   Database,
   Filter,
   Github,
@@ -28,4 +30,6 @@ export const Icons = {
   testing: TestTube,
   analytics: BarChart3,
   arrowUp: ArrowUp,
+  chevronDown: ChevronDown,
+  chevronUp: ChevronUp,
 };
