@@ -24,8 +24,8 @@ export const metadata: Metadata = {
     canonical: siteConfig.url,
   },
   icons: {
-    icon: "/favicon/favicon.ico",
-    shortcut: "/favicon/favicon-16x16.png",
+    icon: [{ url: "/favicon/favicon.ico", sizes: "any" }],
+    shortcut: "/favicon/favicon.ico",
     apple: "/favicon/apple-touch-icon.png",
   },
   verification: {
