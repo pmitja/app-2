@@ -24,7 +24,7 @@ type AuthControlsProps = {
 export const AuthControls = ({ session }: AuthControlsProps) => {
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  if (!session)
+  if (!session || !session.user)
     return (
       <>
         <Button
