@@ -124,7 +124,7 @@ export function SponsorShowcaseCard({ sponsor }: SponsorShowcaseCardProps) {
                 stroke="currentColor"
               >
                 <path
-                  strokeCap="round"
+                  stroke="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
                   d="M9 5l7 7-7 7"
