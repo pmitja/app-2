@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { fonts } from "@/lib/fonts";
 import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -64,6 +65,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
           <AppShell>{children}</AppShell>
           <Toaster />
         </ThemeProvider>
+        <GoogleAnalytics gaId="G-HQD2ZRWQ9Y" />
       </body>
     </html>
   );

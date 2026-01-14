@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Sponsor, SponsorPlacement } from "@/lib/sponsors";
 import { getSponsorsByPlacement } from "@/lib/sponsors";
+import { cn } from "@/lib/utils";
 
 import { EmptySponsorCard } from "./empty-sponsor-card";
 import { FlippableSponsorCard } from "./flippable-sponsor-card";
@@ -21,6 +22,7 @@ type CardData = {
 interface SponsorRailProps {
   placement: Extract<SponsorPlacement, "RAIL_LEFT" | "RAIL_RIGHT">;
   maxSponsors?: number;
+  showPromotionalCard?: boolean;
 }
 
 // Fisher-Yates shuffle algorithm
@@ -43,10 +45,15 @@ function getRandomSponsor(
   return available[Math.floor(Math.random() * available.length)];
 }
 
-export function SponsorRail({ placement, maxSponsors = 6 }: SponsorRailProps) {
+export function SponsorRail({
+  placement,
+  maxSponsors = 6,
+  showPromotionalCard = false,
+}: SponsorRailProps) {
   const { sponsors, isLoading } = useSponsors();
   const [flippedCards, setFlippedCards] = useState<Set<number>>(new Set());
   const [cardSponsors, setCardSponsors] = useState<CardData[]>([]);
+  const [isNavVisible, setIsNavVisible] = useState(true);
 
   // Get all available sponsors for this placement
   const sponsorPool = useMemo(() => {
@@ -199,6 +206,15 @@ export function SponsorRail({ placement, maxSponsors = 6 }: SponsorRailProps) {
     return () => clearInterval(interval);
   }, [sponsorPool, cardSponsors.length, flippedCards]);
 
+  // Track navigation visibility based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsNavVisible(window.scrollY < 10);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   if (isLoading) {
     return (
       <div className="flex h-full flex-col gap-3">
@@ -219,11 +235,19 @@ export function SponsorRail({ placement, maxSponsors = 6 }: SponsorRailProps) {
     );
   }
 
-  // Calculate how many empty cards we need
+  // Calculate how many empty slots we have
   const emptyCardCount = Math.max(0, maxSponsors - cardSponsors.length);
+  // Show promotional card if enabled and there are empty slots (including when there are 0 sponsors)
+  const shouldShowPromotionalCard = showPromotionalCard && emptyCardCount > 0;
 
   return (
-    <div className="flex h-full flex-col gap-3">
+    <div
+      className={cn(
+        "flex h-full flex-col gap-3",
+        isNavVisible && "max-h-[calc(100svh-113px)]",
+        !isNavVisible && "py-4",
+      )}
+    >
       {/* Render sponsor cards */}
       {cardSponsors.map((cardData, idx) => {
         const isFlipped = flippedCards.has(idx);
@@ -238,13 +262,13 @@ export function SponsorRail({ placement, maxSponsors = 6 }: SponsorRailProps) {
           />
         );
       })}
-      {/* Render empty cards to fill remaining slots */}
-      {Array.from({ length: emptyCardCount }).map((_, idx) => (
+      {/* Render ONE promotional card at the bottom if enabled */}
+      {shouldShowPromotionalCard && (
         <EmptySponsorCard
-          key={`empty-${idx}`}
-          className="min-h-0 flex-1"
+          key="promotional"
+          className="mt-auto h-auto flex-none"
         />
-      ))}
+      )}
     </div>
   );
 }

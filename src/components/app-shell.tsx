@@ -48,7 +48,7 @@ export async function AppShell({ children }: AppShellProps) {
           {/* Right Sponsor Rail - Desktop only, outside container */}
           <aside className="hidden lg:block lg:min-w-[200px] lg:flex-1 lg:pr-4">
             <div className="sticky top-0 h-screen">
-              <SponsorRail placement="RAIL_RIGHT" />
+              <SponsorRail placement="RAIL_RIGHT" showPromotionalCard={true} />
             </div>
           </aside>
         </div>
