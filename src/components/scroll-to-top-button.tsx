@@ -22,19 +22,18 @@ export function ScrollToTopButton() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  if (!isVisible) return null;
+
   return (
-    <Button
-      onClick={scrollToTop}
-      size="icon"
-      className={cn(
-        "fixed right-20 bottom-6 z-40 rounded-full shadow-lg transition-all duration-300",
-        isVisible
-          ? "translate-y-0 opacity-100"
-          : "pointer-events-none translate-y-16 opacity-0",
-      )}
-      aria-label="Scroll to top"
-    >
-      <Icons.arrowUp className="size-5" />
-    </Button>
+    <div className="sticky bottom-6 z-40 flex justify-end pb-4 pt-8">
+      <Button
+        onClick={scrollToTop}
+        size="icon"
+        className="rounded-full shadow-lg"
+        aria-label="Scroll to top"
+      >
+        <Icons.arrowUp className="size-5" />
+      </Button>
+    </div>
   );
 }

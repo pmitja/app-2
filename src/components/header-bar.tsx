@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { AuthControls } from "@/components/auth-controls";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -57,15 +58,19 @@ export function HeaderBar({ session }: HeaderBarProps) {
             className="flex items-center gap-4 overflow-hidden font-mono text-lg font-bold"
           >
             <Image
-              src="/problem-dock__logo.webp"
+              src="/problem-dock__logo-1.webp"
               alt="Problem Dock logo"
-              width={48}
+              width={200}
               height={48}
-              className="max-h-[64px] rounded-xl object-contain text-black dark:text-white"
+              className="hidden rounded-xl object-contain text-black dark:block"
             />
-            <span className="text-black dark:text-white">
-              Problem <span className="text-primary">Dock</span>
-            </span>
+            <Image
+              src="/problem-dock__logo-light.webp"
+              alt="Problem Dock logo"
+              width={200}
+              height={48}
+              className="block rounded-xl object-contain text-black dark:hidden"
+            />
           </Link>
         </div>
 
@@ -96,8 +101,9 @@ export function HeaderBar({ session }: HeaderBarProps) {
           </Button>
         </nav>
 
-        {/* Right: Auth Controls */}
+        {/* Right: Theme Switcher and Auth Controls */}
         <div className="flex flex-1 items-center justify-end gap-2">
+          <ThemeSwitcher />
           <AuthControls session={session} />
         </div>
       </div>

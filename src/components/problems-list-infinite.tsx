@@ -4,6 +4,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ProblemsList } from "@/components/problems-list";
+import { ScrollToTopButton } from "@/components/scroll-to-top-button";
 import type { ProblemWithVotes } from "@/lib/queries";
 
 interface ProblemsListInfiniteProps {
@@ -100,6 +101,9 @@ export function ProblemsListInfinite({
           </p>
         </div>
       )}
+
+      {/* Scroll to Top Button */}
+      <ScrollToTopButton />
     </>
   );
 }

@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 
 import { ProblemSearchHeader } from "@/components/header/ProblemSearchHeader";
 import { ProblemsListInfinite } from "@/components/problems-list-infinite";
-import { ScrollToTopButton } from "@/components/scroll-to-top-button";
 import { CollectionPageSchema } from "@/components/structured-data/collection-page-schema";
 import { auth } from "@/lib/auth";
 import { getCategories, getCategoryBySlug, getProblems } from "@/lib/queries";
@@ -118,9 +117,6 @@ export default async function CategoryPage({
           isAuthenticated={!!session?.user}
         />
       </div>
-
-      {/* Scroll to Top Button */}
-      <ScrollToTopButton />
     </>
   );
 }

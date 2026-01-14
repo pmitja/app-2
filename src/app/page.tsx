@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 import { ProblemSearchHeader } from "@/components/header/ProblemSearchHeader";
+import { HeroSection } from "@/components/hero-section";
 import { ProblemsListInfinite } from "@/components/problems-list-infinite";
-import { ScrollToTopButton } from "@/components/scroll-to-top-button";
 import { CollectionPageSchema } from "@/components/structured-data/collection-page-schema";
 import { auth } from "@/lib/auth";
 import { getCategories, getProblems } from "@/lib/queries";
@@ -66,19 +66,9 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
   return (
     <>
       <CollectionPageSchema itemCount={problems.length} />
-      <div className="space-y-8">
-        {/* Main Heading */}
-        <div className="space-y-4">
-          <h1 className="text-4xl font-bold tracking-tight">
-            Find Real Problems to Solve
-          </h1>
-          <p className="text-muted-foreground max-w-3xl text-lg">
-            Problem Dock connects people with real problems and developers
-            seeking validated problems to solve. Post problems you&apos;re
-            facing, or discover real problems before building products that
-            won&apos;t sell. Build solutions for problems that actually exist.
-          </p>
-        </div>
+      <div className="space-y-12">
+        {/* Hero Section */}
+        <HeroSection />
 
         {/* Search Header with Categories and Sort */}
         <ProblemSearchHeader categories={categories} initialQuery={params.q} />
@@ -89,9 +79,6 @@ const HomePage = async ({ searchParams }: HomePageProps) => {
           isAuthenticated={!!session?.user}
         />
       </div>
-
-      {/* Scroll to Top Button */}
-      <ScrollToTopButton />
     </>
   );
 };

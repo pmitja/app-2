@@ -12,11 +12,12 @@ export const ThemeSwitcher = () => {
     <Button
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
       size="icon"
-      className="fixed right-6 bottom-6 z-40 rounded-full shadow-lg"
+      variant="ghost"
+      className="h-10 w-10 rounded-full"
       aria-label="Toggle theme"
     >
-      <Icons.sun className="dark:hidden" />
-      <Icons.moon className="hidden dark:block" />
+      <Icons.sun className="dark:hidden size-5" />
+      <Icons.moon className="hidden dark:block size-5" />
     </Button>
   );
 };

@@ -82,7 +82,10 @@ export function ProblemSearchHeader({
     const checkOverflow = () => {
       if (filterContainerRef.current) {
         const scrollHeight = filterContainerRef.current.scrollHeight;
-        const maxHeight = 88; // 2 lines height
+        // Calculate exact 2 rows height: button height (36px default, 32px sm) + gap (8px) + button height
+        const buttonHeight = isScrolled ? 32 : 36;
+        const gap = 8;
+        const maxHeight = buttonHeight * 2 + gap; // Exactly 2 rows
         setShouldShowToggle(scrollHeight > maxHeight);
       }
     };
@@ -90,7 +93,7 @@ export function ProblemSearchHeader({
     checkOverflow();
     window.addEventListener("resize", checkOverflow);
     return () => window.removeEventListener("resize", checkOverflow);
-  }, [categories]);
+  }, [categories, isScrolled]);
 
   const updateFilter = (key: string, value: string) => {
     startTransition(() => {
@@ -274,9 +277,14 @@ export function ProblemSearchHeader({
               "no-scrollbar flex gap-2 overflow-x-auto scroll-smooth lg:flex-wrap",
               "snap-x snap-mandatory pb-2 lg:snap-none lg:pb-0",
               !showFilters && "max-[480px]:hidden",
-              // Limit to 2 lines on desktop when collapsed
-              !showAllFilters && "lg:max-h-[88px] lg:overflow-hidden",
-              showAllFilters && "lg:max-h-none",
+              // Limit to exactly 2 rows on desktop when collapsed
+              // Default button height (36px) * 2 + gap (8px) = 84px
+              // Small button height (32px) * 2 + gap (8px) = 72px
+              !showAllFilters &&
+                (isScrolled
+                  ? "lg:max-h-[72px] lg:overflow-hidden"
+                  : "lg:max-h-[84px] lg:overflow-hidden"),
+              showAllFilters && "pb-1 lg:max-h-none",
               "transition-all duration-300 ease-in-out",
             )}
           >

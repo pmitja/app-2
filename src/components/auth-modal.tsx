@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
+import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -48,17 +49,29 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>
-            {showResetPassword ? "Reset Password" : "Welcome"}
-          </DialogTitle>
-          <DialogDescription>
-            {showResetPassword
-              ? "Enter your email to receive a password reset link"
-              : "Sign in to your account or create a new one"}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="p-8 sm:max-w-[480px]">
+        <div className="mb-6 flex flex-col items-center">
+          <div className="mb-6">
+            <Image
+              src="/problem-dock_logo.svg"
+              alt="Problem Dock"
+              width={120}
+              height={40}
+              className="h-10 w-auto"
+              priority
+            />
+          </div>
+          <DialogHeader className="space-y-2 text-center">
+            <DialogTitle className="text-2xl font-semibold tracking-tight">
+              {showResetPassword ? "Reset Password" : "Welcome"}
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground max-w-sm text-sm">
+              {showResetPassword
+                ? "Enter your email to receive a password reset link"
+                : "Sign in to your account or create a new one"}
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
         {showResetPassword ? (
           <ResetPasswordRequestForm
@@ -69,43 +82,47 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
             }}
           />
         ) : (
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-3">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
+            <TabsList className="mb-6 grid w-full grid-cols-3">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
               <TabsTrigger value="magic">Magic Link</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="signin" className="space-y-4">
+            <TabsContent value="signin" className="mt-0 space-y-5">
               <SignInForm
                 onClose={() => onOpenChange(false)}
                 onResetPassword={() => setShowResetPassword(true)}
               />
-              <div className="relative">
+              <div className="relative py-4">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+                  <span className="border-border/50 w-full border-t" />
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background text-muted-foreground px-2">
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-background text-muted-foreground px-3 font-medium">
                     Or continue with
                   </span>
                 </div>
               </div>
               <Button
                 variant="outline"
-                className="w-full"
+                className="hover:bg-muted/50 h-11 w-full border-2 font-medium transition-colors"
                 onClick={() => signIn("github", { callbackUrl: "/" })}
               >
-                <Icons.github className="mr-2 h-4 w-4" />
-                GitHub
+                <Icons.github className="mr-2 h-5 w-5" />
+                Continue with GitHub
               </Button>
             </TabsContent>
 
-            <TabsContent value="signup" className="space-y-4">
+            <TabsContent value="signup" className="mt-0 space-y-5">
               <SignUpForm onClose={() => onOpenChange(false)} />
             </TabsContent>
 
-            <TabsContent value="magic" className="space-y-4">
+            <TabsContent value="magic" className="mt-0 space-y-5">
               <MagicLinkForm onClose={() => onOpenChange(false)} />
             </TabsContent>
           </Tabs>
@@ -159,53 +176,69 @@ function SignInForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
         {error && (
-          <div className="bg-destructive/15 text-destructive rounded-md p-3 text-sm">
+          <div className="bg-destructive/15 text-destructive border-destructive/20 rounded-md border p-3.5 text-sm">
             {error}
           </div>
         )}
 
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="name@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Email</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder="name@example.com"
+                    className="h-11"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    className="h-11"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-1">
           <Button
             type="button"
             variant="link"
-            className="h-auto p-0 text-xs"
+            className="h-auto p-0 text-xs font-medium"
             onClick={onResetPassword}
           >
             Forgot password?
           </Button>
         </div>
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="h-11 w-full font-medium"
+          disabled={isLoading}
+        >
           {isLoading ? "Signing in..." : "Sign In"}
         </Button>
       </form>
@@ -260,7 +293,7 @@ function SignUpForm({ onClose }: { onClose: () => void }) {
 
   if (success) {
     return (
-      <div className="rounded-md bg-green-50 p-4 text-sm text-green-900 dark:bg-green-900/20 dark:text-green-400">
+      <div className="rounded-md border border-green-200 bg-green-50 p-4 text-sm text-green-900 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
         Account created successfully! Signing you in...
       </div>
     );
@@ -268,71 +301,94 @@ function SignUpForm({ onClose }: { onClose: () => void }) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
         {error && (
-          <div className="bg-destructive/15 text-destructive rounded-md p-3 text-sm">
+          <div className="bg-destructive/15 text-destructive border-destructive/20 rounded-md border p-3.5 text-sm">
             {error}
           </div>
         )}
 
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="John Doe" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="John Doe" className="h-11" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="name@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Email</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder="name@example.com"
+                    className="h-11"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
-              </FormControl>
-              <FormMessage />
-              {field.value && <PasswordStrength password={field.value} />}
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    className="h-11"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+                {field.value && <PasswordStrength password={field.value} />}
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">
+                  Confirm Password
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    className="h-11"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="h-11 w-full font-medium"
+          disabled={isLoading}
+        >
           {isLoading ? "Creating account..." : "Sign Up"}
         </Button>
       </form>
@@ -378,11 +434,15 @@ function MagicLinkForm({ onClose }: { onClose: () => void }) {
 
   if (success) {
     return (
-      <div className="space-y-4">
-        <div className="rounded-md bg-green-50 p-4 text-sm text-green-900 dark:bg-green-900/20 dark:text-green-400">
+      <div className="space-y-5">
+        <div className="rounded-md border border-green-200 bg-green-50 p-4 text-sm text-green-900 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
           Check your email! We&apos;ve sent you a magic link to sign in.
         </div>
-        <Button variant="outline" className="w-full" onClick={onClose}>
+        <Button
+          variant="outline"
+          className="h-11 w-full font-medium"
+          onClick={onClose}
+        >
           Close
         </Button>
       </div>
@@ -391,9 +451,9 @@ function MagicLinkForm({ onClose }: { onClose: () => void }) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
         {error && (
-          <div className="bg-destructive/15 text-destructive rounded-md p-3 text-sm">
+          <div className="bg-destructive/15 text-destructive border-destructive/20 rounded-md border p-3.5 text-sm">
             {error}
           </div>
         )}
@@ -403,20 +463,29 @@ function MagicLinkForm({ onClose }: { onClose: () => void }) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-sm font-medium">Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="name@example.com" {...field} />
+                <Input
+                  type="email"
+                  placeholder="name@example.com"
+                  className="h-11"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="h-11 w-full font-medium"
+          disabled={isLoading}
+        >
           {isLoading ? "Sending..." : "Send Magic Link"}
         </Button>
 
-        <p className="text-muted-foreground text-xs">
+        <p className="text-muted-foreground text-center text-xs leading-relaxed">
           We&apos;ll email you a magic link for a password-free sign in.
         </p>
       </form>
@@ -467,12 +536,16 @@ function ResetPasswordRequestForm({
 
   if (success) {
     return (
-      <div className="space-y-4">
-        <div className="rounded-md bg-green-50 p-4 text-sm text-green-900 dark:bg-green-900/20 dark:text-green-400">
+      <div className="space-y-5">
+        <div className="rounded-md border border-green-200 bg-green-50 p-4 text-sm text-green-900 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
           If an account with that email exists, we&apos;ve sent a password reset
           link.
         </div>
-        <Button variant="outline" className="w-full" onClick={onBack}>
+        <Button
+          variant="outline"
+          className="h-11 w-full font-medium"
+          onClick={onBack}
+        >
           Back to Sign In
         </Button>
       </div>
@@ -481,9 +554,9 @@ function ResetPasswordRequestForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
         {error && (
-          <div className="bg-destructive/15 text-destructive rounded-md p-3 text-sm">
+          <div className="bg-destructive/15 text-destructive border-destructive/20 rounded-md border p-3.5 text-sm">
             {error}
           </div>
         )}
@@ -493,25 +566,34 @@ function ResetPasswordRequestForm({
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-sm font-medium">Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="name@example.com" {...field} />
+                <Input
+                  type="email"
+                  placeholder="name@example.com"
+                  className="h-11"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="flex gap-2">
+        <div className="flex gap-3 pt-1">
           <Button
             type="button"
             variant="outline"
-            className="flex-1"
+            className="h-11 flex-1 font-medium"
             onClick={onBack}
           >
             Back
           </Button>
-          <Button type="submit" className="flex-1" disabled={isLoading}>
+          <Button
+            type="submit"
+            className="h-11 flex-1 font-medium"
+            disabled={isLoading}
+          >
             {isLoading ? "Sending..." : "Send Reset Link"}
           </Button>
         </div>

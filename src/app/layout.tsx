@@ -5,7 +5,6 @@ import type { Metadata } from "next";
 import { AppShell } from "@/components/app-shell";
 import { OrganizationSchema } from "@/components/structured-data/organization-schema";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Toaster } from "@/components/ui/sonner";
 import { fonts } from "@/lib/fonts";
 import { siteConfig } from "@/lib/site-config";
@@ -64,7 +63,6 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         <ThemeProvider attribute="class">
           <AppShell>{children}</AppShell>
           <Toaster />
-          <ThemeSwitcher />
         </ThemeProvider>
       </body>
     </html>
