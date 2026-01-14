@@ -7,12 +7,11 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import type { Category } from "@/lib/queries";
 import { cn } from "@/lib/utils";
@@ -163,11 +162,69 @@ export function ProblemSearchHeader({
     });
   };
 
-  const handleSortChange = (value: string) => {
-    updateFilter("sort", value);
+  const handleSortToggle = (sortKey: string) => {
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams);
+      const currentSortParam = params.get("sort");
+      const currentSorts = currentSortParam
+        ? currentSortParam
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : ["votes"]; // Default to votes if no sort param
+
+      // Toggle the sort key
+      const sortIndex = currentSorts.indexOf(sortKey);
+      if (sortIndex > -1) {
+        // Remove if already selected
+        currentSorts.splice(sortIndex, 1);
+      } else {
+        // Add if not selected
+        currentSorts.push(sortKey);
+      }
+
+      // Update URL params
+      if (currentSorts.length === 0) {
+        // Default to votes if nothing selected
+        params.set("sort", "votes");
+      } else if (currentSorts.length === 1 && currentSorts[0] === "votes") {
+        // Remove sort param if only default votes is selected (cleaner URL)
+        params.delete("sort");
+      } else {
+        params.set("sort", currentSorts.join(","));
+      }
+
+      router.push(`${basePath}?${params.toString()}`);
+    });
   };
 
-  const currentSort = searchParams.get("sort") || "votes";
+  const currentSortParam = searchParams.get("sort");
+  const selectedSorts = currentSortParam
+    ? currentSortParam
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : ["votes"]; // Default to votes if no sort param
+
+  const sortOptions = [
+    { value: "votes", label: "Most Upvoted" },
+    { value: "recent", label: "Most Recent" },
+    { value: "pain", label: "Highest Pain Level" },
+  ];
+
+  // Generate display text for the button
+  const getSortDisplayText = () => {
+    if (selectedSorts.length === 0) {
+      return "Sort by";
+    }
+    if (selectedSorts.length === 1) {
+      return (
+        sortOptions.find((opt) => opt.value === selectedSorts[0])?.label ||
+        "Sort by"
+      );
+    }
+    return `${selectedSorts.length} sorts`;
+  };
 
   // Parse selected categories from URL or path
   const categoryParam = searchParams.get("category");
@@ -238,25 +295,33 @@ export function ProblemSearchHeader({
           {/* Sort and Submit Row */}
           <div className="flex gap-2">
             {/* Sort Dropdown */}
-            <Select
-              value={currentSort}
-              onValueChange={handleSortChange}
-              disabled={isPending}
-            >
-              <SelectTrigger
-                className={cn(
-                  "w-full lg:w-[200px]",
-                  isScrolled ? "h-9" : "h-10",
-                )}
-              >
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="votes">Most Upvoted</SelectItem>
-                <SelectItem value="recent">Most Recent</SelectItem>
-                <SelectItem value="pain">Highest Pain Level</SelectItem>
-              </SelectContent>
-            </Select>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size={isScrolled ? "sm" : "default"}
+                  disabled={isPending}
+                  className={cn(
+                    "w-full justify-between lg:w-[200px]",
+                    isScrolled ? "h-9" : "h-10",
+                  )}
+                >
+                  <span>{getSortDisplayText()}</span>
+                  <Icons.chevronDown className="ml-2 size-4 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[200px]">
+                {sortOptions.map((option) => (
+                  <DropdownMenuCheckboxItem
+                    key={option.value}
+                    checked={selectedSorts.includes(option.value)}
+                    onCheckedChange={() => handleSortToggle(option.value)}
+                  >
+                    {option.label}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* Submit Problem Button */}
             <Button

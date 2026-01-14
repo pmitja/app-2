@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
   const params = {
     q: searchParams.get("q") || undefined,
-    sort: (searchParams.get("sort") as "votes" | "recent" | "pain") || "votes",
+    sort: searchParams.get("sort") || "votes",
     category: searchParams.get("category") || undefined,
     limit: parseInt(searchParams.get("limit") || "20"),
     offset: parseInt(searchParams.get("offset") || "0"),

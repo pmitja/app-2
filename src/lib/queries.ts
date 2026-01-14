@@ -1,22 +1,22 @@
 import { and, count, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 
 import {
-  categories,
-  db,
-  developerStatuses,
-  problemComments,
-  problemCommentVotes,
-  problemFollows,
-  problemLikes,
-  problems,
-  problemSolutions,
-  problemVotes,
-  users,
+    categories,
+    db,
+    developerStatuses,
+    problemComments,
+    problemCommentVotes,
+    problemFollows,
+    problemLikes,
+    problems,
+    problemSolutions,
+    problemVotes,
+    users,
 } from "./schema";
 
 export interface GetProblemsParams {
   q?: string;
-  sort?: "votes" | "recent" | "pain";
+  sort?: string;
   category?: string;
   limit?: number;
   offset?: number;
@@ -188,17 +188,35 @@ export async function getProblems(
     query.where(and(...conditions));
   }
 
-  // Apply sorting
-  switch (sort) {
-    case "votes":
+  // Apply sorting - support multiple sort criteria separated by commas
+  if (sort) {
+    const sortKeys = sort.split(",").map((s) => s.trim()).filter(Boolean);
+    const orderByClauses: Parameters<typeof query.orderBy>[0][] = [];
+
+    for (const sortKey of sortKeys) {
+      switch (sortKey) {
+        case "votes":
+          orderByClauses.push(desc(sql`COALESCE(${voteCountSubquery.count}, 0)`));
+          break;
+        case "recent":
+          orderByClauses.push(desc(problems.createdAt));
+          break;
+        case "pain":
+          orderByClauses.push(desc(problems.painLevel));
+          break;
+      }
+    }
+
+    // Apply all orderBy clauses if any were added
+    if (orderByClauses.length > 0) {
+      query.orderBy(...orderByClauses);
+    } else {
+      // Default to votes if no valid sort keys
       query.orderBy(desc(sql`COALESCE(${voteCountSubquery.count}, 0)`));
-      break;
-    case "recent":
-      query.orderBy(desc(problems.createdAt));
-      break;
-    case "pain":
-      query.orderBy(desc(problems.painLevel));
-      break;
+    }
+  } else {
+    // Default to votes if no sort specified
+    query.orderBy(desc(sql`COALESCE(${voteCountSubquery.count}, 0)`));
   }
 
   // Apply pagination

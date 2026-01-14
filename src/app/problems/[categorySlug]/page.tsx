@@ -14,7 +14,7 @@ interface CategoryPageProps {
   }>;
   searchParams: Promise<{
     q?: string;
-    sort?: "votes" | "recent" | "pain";
+    sort?: string;
   }>;
 }
 

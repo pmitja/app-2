@@ -11,7 +11,7 @@ import { siteConfig } from "@/lib/site-config";
 interface HomePageProps {
   searchParams: Promise<{
     q?: string;
-    sort?: "votes" | "recent" | "pain";
+    sort?: string;
     category?: string;
   }>;
 }
