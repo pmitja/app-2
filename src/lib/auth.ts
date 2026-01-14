@@ -89,6 +89,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     }),
   ],
   secret: env.NEXTAUTH_SECRET,
+  trustHost: true, // Required for production behind reverse proxy (Railway)
   pages: {
     signIn: "/",
     error: "/",
