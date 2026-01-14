@@ -88,6 +88,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       },
     }),
   ],
+  secret: env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/",
     error: "/",

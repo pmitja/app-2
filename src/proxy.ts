@@ -4,12 +4,28 @@ import { NextRequest, NextResponse } from "next/server";
 import { categories, db, problems } from "@/lib/schema";
 
 /**
- * Middleware to handle redirects from old UUID-based problem URLs to new slug-based URLs
+ * Proxy middleware to handle redirects and enforce domain conventions.
  * Example: /problems/{uuid} -> /problems/{categorySlug}/{problemSlug}
+ * 
+ * Also enforces www subdomain in production.
  */
-export async function proxy(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const hostname = request.headers.get("host") || "";
 
+  // 1. Force WWW in production
+  if (
+    process.env.NODE_ENV === "production" &&
+    !hostname.startsWith("www.") &&
+    !hostname.includes("localhost") &&
+    !hostname.endsWith(".vercel.app")
+  ) {
+    const newUrl = new URL(request.url);
+    newUrl.hostname = `www.${newUrl.hostname}`;
+    return NextResponse.redirect(newUrl, { status: 301 });
+  }
+
+  // 2. Problem UUID Redirect Logic
   // Check if this is a problem detail page with potential UUID
   const problemMatch = pathname.match(/^\/problems\/([^/]+)$/);
 
