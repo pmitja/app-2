@@ -1,3 +1,13 @@
+import {
+  ArrowRight,
+  Calendar,
+  Check,
+  HelpCircle,
+  MousePointerClick,
+  RotateCw,
+  Target,
+  Trophy,
+} from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -12,20 +22,23 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/lib/site-config";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Get Your Startup in Front of Developers",
+  title: "Sponsor Problem Dock",
   description:
-    "Get your startup in front of developers actively seeking validated problems to solve. Sponsor Problem Dock and reach developers who are researching real problems before building products.",
+    "Get your startup in front of developers actively seeking validated problems to solve.",
   alternates: {
     canonical: `${siteConfig.url}/sponsors`,
   },
   openGraph: {
-    title: "Get Your Startup in Front of Developers",
+    title: "Sponsor Problem Dock",
     description:
       "Get your startup in front of developers actively seeking validated problems to solve.",
     url: `${siteConfig.url}/sponsors`,
@@ -34,7 +47,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Get Your Startup in Front of Developers",
+    title: "Sponsor Problem Dock",
     description:
       "Get your startup in front of developers actively seeking validated problems to solve.",
   },
@@ -47,7 +60,13 @@ export default async function SponsorsPage() {
   ]);
 
   if (!availabilityResult.success || !availabilityResult.data) {
-    return <div>Error loading sponsor information</div>;
+    return (
+      <div className="container flex h-[50vh] items-center justify-center">
+        <p className="text-muted-foreground">
+          Error loading sponsor information. Please try again later.
+        </p>
+      </div>
+    );
   }
 
   const {
@@ -61,209 +80,226 @@ export default async function SponsorsPage() {
 
   const currentSponsors = sponsorsResult.success ? sponsorsResult.data : [];
 
-  // Format month for display (e.g., "2025-01" -> "January 2025")
   const formatMonth = (monthStr: string) => {
     const [year, month] = monthStr.split("-");
     const date = new Date(parseInt(year), parseInt(month) - 1);
     return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
   };
 
+  const benefits = [
+    {
+      icon: Target,
+      title: "Targeted Audience",
+      description:
+        "Reach developers and founders who are actively researching problems to build solutions for.",
+    },
+    {
+      icon: RotateCw,
+      title: "Fair Visibility",
+      description:
+        "Sponsors rotate every 10 seconds on desktop sidebars and mobile banners, ensuring equal exposure.",
+    },
+    {
+      icon: Calendar,
+      title: "Monthly Duration",
+      description:
+        "Your sponsorship runs from the 1st to the last day of the month, giving you consistent presence.",
+    },
+  ];
+
+  const faqs = [
+    {
+      q: "How does the rotation work?",
+      a: "Your ad rotates with other sponsors every 10 seconds. This ensures every sponsor gets equal visibility on every page view, regardless of when a user visits.",
+    },
+    {
+      q: "When does my sponsorship start?",
+      a: "Sponsorships are monthly. If you book for next month, your ad will start appearing automatically on the 1st.",
+    },
+    {
+      q: "What can I include in my ad?",
+      a: "You get a title, a short description (up to 100 characters), a call-to-action button, and your logo. Simple and effective.",
+    },
+    {
+      q: "Can I change my ad later?",
+      a: "Yes, just reach out to support and we can update your ad copy or creative assets.",
+    },
+  ];
+
   return (
-    <div className="container py-12">
-      <div className="mx-auto max-w-4xl space-y-8">
+    <div className="container pt-10 pb-20">
+      <div className="mx-auto max-w-5xl space-y-16">
         {/* Hero Section */}
-        <div className="space-y-4 text-center">
-          <Badge variant="secondary" className="mb-2">
+        <div className="flex flex-col items-center space-y-6 text-center">
+          <Badge
+            variant="secondary"
+            className="rounded-full px-4 py-1.5 text-sm font-medium"
+          >
             Sponsorship Opportunities
           </Badge>
-          <h1 className="text-4xl font-bold tracking-tight">
-            Get Your Startup in Front of Developers
+          <h1 className="max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+            Get your startup in front of{" "}
+            <span className="text-primary">active builders</span>
           </h1>
-          <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-            Your startup appears in rotating sponsor slots on desktop sidebars
-            and mobile banners across all pages. Sponsors rotate every 10
-            seconds to ensure fair visibility.
+          <p className="text-muted-foreground max-w-2xl text-xl leading-relaxed">
+            Connect with developers and founders who are researching validated
+            problems and building the next generation of products.
           </p>
         </div>
 
-        {/* Availability Card */}
-        <Card className="border-2">
-          <CardHeader>
-            <CardTitle>Availability</CardTitle>
-            <CardDescription>
-              Maximum spots: {maxSponsors} sponsors per month
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">
-                  {formatMonth(nextMonth)}
-                </span>
-                <Badge
-                  variant={nextCount >= maxSponsors ? "destructive" : "default"}
-                >
-                  {nextCount}/{maxSponsors} filled
-                </Badge>
+        {/* Benefits Grid */}
+        <div className="grid gap-8 md:grid-cols-3">
+          {benefits.map((benefit, index) => (
+            <div
+              key={index}
+              className="bg-card flex flex-col items-center rounded-2xl border p-6 text-center shadow-sm transition-all hover:shadow-md"
+            >
+              <div className="bg-primary/10 text-primary mb-4 rounded-xl p-3">
+                <benefit.icon className="h-6 w-6" />
               </div>
-              <div className="bg-secondary h-2 overflow-hidden rounded-full">
-                <div
-                  className="bg-primary h-full transition-all"
-                  style={{ width: `${(nextCount / maxSponsors) * 100}%` }}
-                />
-              </div>
+              <h3 className="mb-2 text-xl font-semibold">{benefit.title}</h3>
+              <p className="text-muted-foreground">{benefit.description}</p>
             </div>
+          ))}
+        </div>
 
-            {nextMonthAvailable ? (
-              <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <span>Spots available for {formatMonth(nextMonth)}</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 text-sm text-orange-600 dark:text-orange-400">
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-                <span>All spots filled for {formatMonth(nextMonth)}</span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Pricing & Availability Section */}
+        <div className="grid items-start gap-8 lg:grid-cols-5">
+          {/* Availability Status */}
+          <div className="space-y-6 lg:col-span-2">
+            <h2 className="text-2xl font-bold">Availability Status</h2>
+            <Card className="overflow-hidden border-2">
+              <CardHeader className="bg-muted/50 pb-4">
+                <CardTitle className="flex items-center justify-between text-lg">
+                  <span>{formatMonth(nextMonth)}</span>
+                  <Badge variant={nextMonthAvailable ? "default" : "secondary"}>
+                    {nextMonthAvailable ? "Open" : "Full"}
+                  </Badge>
+                </CardTitle>
+                <CardDescription>
+                  Sponsorship slots for next month
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div className="flex justify-between text-sm font-medium">
+                    <span>{nextCount} spots filled</span>
+                    <span className="text-muted-foreground">
+                      {maxSponsors} total spots
+                    </span>
+                  </div>
+                  <div className="bg-secondary h-3 w-full overflow-hidden rounded-full">
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all duration-500 ease-out",
+                        nextCount >= maxSponsors ? "bg-red-500" : "bg-primary",
+                      )}
+                      style={{ width: `${(nextCount / maxSponsors) * 100}%` }}
+                    />
+                  </div>
+                  <p className="text-muted-foreground pt-2 text-sm">
+                    {nextMonthAvailable
+                      ? "Secure your spot now before they run out."
+                      : "All spots for this month have been booked. Check back later for future openings."}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Pricing Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Lock in your spot</CardTitle>
-            <CardDescription>
-              Pay a $99 one-time advance to lock your spot for{" "}
-              {formatMonth(nextMonth)}. This advance is applied toward your
-              monthly payment.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold">$99</span>
-              <span className="text-muted-foreground">/month</span>
+            <div className="bg-card rounded-xl border p-6 shadow-sm">
+              <div className="mb-4 flex items-center gap-4">
+                <div className="rounded-lg bg-yellow-100 p-2 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400">
+                  <Trophy className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Pro Tip</h3>
+                  <p className="text-muted-foreground text-xs">
+                    High visibility for early adopters
+                  </p>
+                </div>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Problem Dock is growing fast. Locking in your price now ensures
+                you keep this rate even as our traffic grows.
+              </p>
             </div>
+          </div>
 
-            <ul className="space-y-2 text-sm">
-              <li className="flex items-start gap-2">
-                <svg
-                  className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600 dark:text-green-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>
-                  Rotating display on all pages (desktop sidebars & mobile)
+          {/* Pricing Card */}
+          <Card className="border-primary/20 relative overflow-hidden shadow-lg lg:col-span-3">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+              <MousePointerClick className="h-32 w-32" />
+            </div>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-3xl font-bold">
+                Monthly Sponsorship
+              </CardTitle>
+              <CardDescription className="text-lg">
+                Simple, flat pricing. No hidden fees.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              <div className="flex items-baseline gap-1">
+                <span className="text-5xl font-extrabold tracking-tight">
+                  $99
                 </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <svg
-                  className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600 dark:text-green-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>
-                  10-second rotation for fair visibility across all sponsors
+                <span className="text-muted-foreground text-xl font-medium">
+                  /month
                 </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <svg
-                  className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600 dark:text-green-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>Exposure to developers actively seeking solutions</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <svg
-                  className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600 dark:text-green-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span>Monthly duration (1st to last day of month)</span>
-              </li>
-            </ul>
+              </div>
 
-            {currentCount < maxSponsors ? (
-              <Button asChild size="lg" className="w-full">
-                <Link href="/sponsors/checkout">
-                  Lock Your Spot for {formatMonth(currentMonth)}
-                </Link>
-              </Button>
-            ) : (
-              <Button disabled size="lg" className="w-full">
-                All Spots Filled - Check Back Soon
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+              <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+                {[
+                  "Rotating sidebar display",
+                  "Mobile banner placement",
+                  "Traffic from active builders",
+                  "SEO-friendly backlink",
+                  "Cancel anytime",
+                  "Analytics included (via own link)",
+                ].map((feature) => (
+                  <div key={feature} className="flex items-center gap-2">
+                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                      <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
+                    </div>
+                    <span className="text-sm">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+            <Separator />
+            <CardFooter className="pt-6 pb-8">
+              {nextMonthAvailable ? (
+                <Button
+                  asChild
+                  size="lg"
+                  className="h-12 w-full text-lg shadow-md transition-all hover:shadow-lg"
+                >
+                  <Link href="/sponsors/checkout">
+                    Lock Your Spot for {formatMonth(nextMonth)}{" "}
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              ) : (
+                <Button disabled size="lg" className="h-12 w-full text-lg">
+                  Sold Out for {formatMonth(nextMonth)}
+                </Button>
+              )}
+            </CardFooter>
+          </Card>
+        </div>
 
         {/* Current Sponsors Section */}
         {currentSponsors.length > 0 && (
-          <div className="space-y-4">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold">Current Sponsors</h2>
-              <p className="text-muted-foreground text-sm">
-                {formatMonth(currentMonth)} - Supporting our community
+          <div className="space-y-8 pt-8">
+            <div className="flex flex-col items-center space-y-2 text-center">
+              <h2 className="text-3xl font-bold">Current Sponsors</h2>
+              <p className="text-muted-foreground">
+                Forward-thinking companies supporting our community in{" "}
+                {formatMonth(currentMonth)}
               </p>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {currentSponsors.map((sponsor) => (
                 <SponsorShowcaseCard key={sponsor.id} sponsor={sponsor} />
               ))}
@@ -272,66 +308,26 @@ export default async function SponsorsPage() {
         )}
 
         {/* FAQ Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Frequently Asked Questions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h3 className="mb-2 font-semibold">
-                How does the rotation work?
-              </h3>
-              <p className="text-muted-foreground text-sm">
-                Your ad will rotate with other sponsors every 10 seconds,
-                ensuring equal visibility for all sponsors throughout the month.
-              </p>
-            </div>
-            <div>
-              <h3 className="mb-2 font-semibold">
-                When does my sponsorship start?
-              </h3>
-              <p className="text-muted-foreground text-sm">
-                Your sponsorship will be active from the 1st to the last day of
-                the selected month.
-              </p>
-            </div>
-            <div>
-              <h3 className="mb-2 font-semibold">
-                What content can I include?
-              </h3>
-              <p className="text-muted-foreground text-sm">
-                You can include your startup name, a short description (up to
-                100 characters), a call-to-action button, and an optional logo.
-              </p>
-            </div>
-            <div>
-              <h3 className="mb-2 font-semibold">
-                Can I update my ad after payment?
-              </h3>
-              <p className="text-muted-foreground text-sm">
-                Please contact support if you need to make changes to your ad
-                content after payment.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="mx-auto max-w-3xl space-y-8 pt-8">
+          <div className="text-center">
+            <h2 className="flex items-center justify-center gap-2 text-2xl font-bold">
+              <HelpCircle className="text-muted-foreground h-6 w-6" />
+              Frequently Asked Questions
+            </h2>
+          </div>
 
-        {/* Advertise CTA at bottom */}
-        <div className="text-muted-foreground flex items-center justify-center gap-2 pt-8 text-sm">
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
-            />
-          </svg>
-          <span>Advertise</span>
+          <div className="grid gap-6">
+            {faqs.map((faq, i) => (
+              <Card key={i} className="bg-muted/30 border-none shadow-none">
+                <CardHeader>
+                  <CardTitle className="text-lg">{faq.q}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">{faq.a}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </div>
