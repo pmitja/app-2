@@ -53,11 +53,19 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         <div className="mb-6 flex flex-col items-center">
           <div className="mb-6">
             <Image
-              src="/problem-dock_logo.svg"
+              src="/problem-dock__logo-1.webp"
               alt="Problem Dock"
               width={120}
-              height={40}
-              className="h-10 w-auto"
+              height={48}
+              className="hidden rounded-xl object-contain text-black dark:block"
+              priority
+            />
+            <Image
+              src="/problem-dock__logo-light.webp"
+              alt="Problem Dock"
+              width={120}
+              height={48}
+              className="block rounded-xl object-contain text-black dark:hidden"
               priority
             />
           </div>

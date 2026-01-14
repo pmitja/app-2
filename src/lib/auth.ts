@@ -5,12 +5,16 @@ import NextAuth from "next-auth";
 import { Adapter } from "next-auth/adapters";
 import Credentials from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
-import Resend from "next-auth/providers/resend";
+import ResendProvider from "next-auth/providers/resend";
+import { Resend } from "resend";
 
 import { env } from "@/env.mjs";
+import { getMagicLinkEmail } from "@/lib/email-templates";
 import { db, users } from "@/lib/schema";
 import { stripeServer } from "@/lib/stripe";
 import { signInSchema } from "@/lib/validation";
+
+const resend = new Resend(env.RESEND_API_KEY);
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: DrizzleAdapter(db) as Adapter,
@@ -19,9 +23,25 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       clientId: env.GITHUB_ID,
       clientSecret: env.GITHUB_SECRET,
     }),
-    Resend({
+    ResendProvider({
       apiKey: env.RESEND_API_KEY,
       from: env.EMAIL_FROM,
+      sendVerificationRequest: async ({ identifier, url, provider }) => {
+        const { host } = new URL(url);
+        const { subject, html, text } = getMagicLinkEmail({ url, host });
+
+        try {
+          await resend.emails.send({
+            from: provider.from || env.EMAIL_FROM,
+            to: identifier,
+            subject,
+            html,
+            text,
+          });
+        } catch (error) {
+          throw new Error("Failed to send verification email");
+        }
+      },
     }),
     Credentials({
       name: "credentials",
