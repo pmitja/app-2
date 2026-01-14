@@ -62,6 +62,7 @@ export function HeaderBar({ session }: HeaderBarProps) {
               alt="Problem Dock logo"
               width={200}
               height={48}
+              unoptimized
               className="hidden rounded-xl object-contain text-black dark:block"
             />
             <Image
@@ -69,6 +70,7 @@ export function HeaderBar({ session }: HeaderBarProps) {
               alt="Problem Dock logo"
               width={200}
               height={48}
+              unoptimized
               className="block rounded-xl object-contain text-black dark:hidden"
             />
           </Link>
