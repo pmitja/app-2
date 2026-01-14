@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto space-y-6">
       {/* Page header skeleton */}
       <div className="space-y-2">
         <Skeleton className="h-9 w-64" />

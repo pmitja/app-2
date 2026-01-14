@@ -11,8 +11,8 @@ export function HeroSection() {
       </div>
 
       {/* Main Headline */}
-      <h1 className="hero-gradient-text from-primary via-secondary to-accent mb-6 bg-gradient-to-r bg-clip-text text-5xl font-bold tracking-tight text-transparent sm:text-6xl lg:text-7xl">
-        Find Real Problems to Solve
+      <h1 className="mx-auto mb-6 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+        Find <span className="text-red-600 dark:text-red-400">Real Problems</span> to Solve
       </h1>
 
       {/* Subheadline */}

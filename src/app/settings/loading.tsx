@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto space-y-6">
       {/* Page header skeleton */}
       <div>
         <Skeleton className="h-9 w-64" />
@@ -22,7 +22,7 @@ export default function Loading() {
           {/* Name field */}
           <div className="space-y-2">
             <Skeleton className="h-4 w-12" />
-            <Skeleton className="h-4 w-48" />
+            <Skeleton className="h-10 w-full max-w-md" />
           </div>
 
           {/* Email field */}
